@@ -2586,3 +2586,152 @@ const_3749 = func536
 const_4188 = func537
 const_5158 = func538
 return_zero_i64 = func945
+
+
+# ============================================================================
+# BATCH 45: Entity lookups and pointer accessors
+# ============================================================================
+
+# ============================================================================
+# func496: Check entity type field 340 is zero
+# ============================================================================
+
+def func496(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func496: Check if entity type field 340 is zero.
+
+    Gets entity index from pointer at var1, looks up entity type,
+    and returns 1 if type's field 340 == 0.
+
+    Args:
+        var0-var4: Various parameters (only var1 is used)
+
+    Returns:
+        1 if entity type field 340 is zero, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    field_340 = i32_load(type_addr + 340)
+    return 1 if field_340 == 0 else 0
+
+
+# ============================================================================
+# func548: Entity filter check
+# ============================================================================
+
+def func548(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func548: Multi-condition entity filter.
+
+    Returns true if any of these conditions is met:
+    - Entity type field 352 is zero
+    - var0 equals the entity index
+    - Entity field 110 (u16) is zero
+
+    Args:
+        var0: Entity index to compare
+        var1: Pointer to entity index
+
+    Returns:
+        1 if any filter condition is true
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    type_field_352 = i32_load8_u(type_addr + 352)
+
+    cond1 = 1 if type_field_352 == 0 else 0
+    cond2 = 1 if var0 == entity_idx else 0
+    cond3 = 1 if i32_load16_u(entity_addr + 110) == 0 else 0
+
+    return 1 if (cond1 or cond2 or cond3) else 0
+
+
+# ============================================================================
+# func995: Return alpha channel constant
+# ============================================================================
+
+def func995(var0: int, var1: int) -> int:
+    """
+    $func995: Return -16777216 (0xFF000000).
+
+    Returns full alpha channel value for ARGB color format.
+
+    Args:
+        var0, var1: Ignored
+
+    Returns:
+        -16777216 (0xFF000000)
+    """
+    return -16777216
+
+
+# ============================================================================
+# func535: Load offset 4 from pointer
+# ============================================================================
+
+def func535(var0: int) -> int:
+    """
+    $func535: Load i32 at offset 4 from pointer.
+
+    Args:
+        var0: Base pointer
+
+    Returns:
+        Value at var0 + 4
+    """
+    return i32_load(var0 + 4)
+
+
+# ============================================================================
+# func988: Load offset 4 from second param
+# ============================================================================
+
+def func988(var0: int, var1: int) -> int:
+    """
+    $func988: Load i32 at offset 4 from var1.
+
+    Args:
+        var0: Ignored
+        var1: Base pointer
+
+    Returns:
+        Value at var1 + 4
+    """
+    return i32_load(var1 + 4)
+
+
+# ============================================================================
+# func989: Load from second param
+# ============================================================================
+
+def func989(var0: int, var1: int) -> int:
+    """
+    $func989: Load i32 from var1.
+
+    Args:
+        var0: Ignored
+        var1: Pointer to load from
+
+    Returns:
+        Value at var1
+    """
+    return i32_load(var1)
+
+
+# ============================================================================
+# Batch 45 Aliases
+# ============================================================================
+
+check_entity_type_field_340 = func496
+entity_filter_check = func548
+alpha_channel = func995
+load_offset_4 = func535
+load_offset_4_from_var1 = func988
+load_from_var1 = func989

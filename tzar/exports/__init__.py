@@ -21,5 +21,6 @@ from tzar.exports.accessors import (
     Ge, Oe, Qe, _d, Bd, Dd,
     Vd, Gc, Jd, od, te, ue,
     xe, Db, cf, df, ef, _c,
-    func251, func395, func536, func537, func538, func945
+    func251, func395, func536, func537, func538, func945,
+    func496, func548, func995, func535, func988, func989
 )
