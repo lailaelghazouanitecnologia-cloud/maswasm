@@ -1,1 +1,1 @@
-"""Game module."""
+"""Game loop and main exports."""
