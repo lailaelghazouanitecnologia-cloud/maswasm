@@ -254,6 +254,161 @@ def ea(var0: int) -> int:
 
 
 # ============================================================================
+# oa: Get viewport offset (leaf, 0 callers)
+# ============================================================================
+
+def oa() -> int:
+    """
+    $oa: Get viewport offset value + 10.
+
+    Returns:
+        Viewport value from 59176 plus 10
+    """
+    return i32_load(59176) + 10
+
+
+# ============================================================================
+# ub: Get entity count (leaf, 0 callers)
+# ============================================================================
+
+def ub() -> int:
+    """
+    $ub: Get current entity count.
+
+    Returns:
+        Entity count from 9671176
+    """
+    return i32_load(9671176)
+
+
+# ============================================================================
+# ua: Set player selection value (leaf, 0 callers)
+# ============================================================================
+
+def ua(var0: int) -> None:
+    """
+    $ua: Store player selection value.
+
+    Args:
+        var0: Value to store
+    """
+    i32_store(9561844, var0)
+
+
+# ============================================================================
+# ib: Set cursor/selection mode (leaf, 0 callers)
+# ============================================================================
+
+def ib(var0: int) -> None:
+    """
+    $ib: Set cursor selection mode.
+
+    Sets different cursor behavior based on mode:
+    - Mode 0: Use unit type table at 9681696
+    - Mode 1: Use table at 9681776 with value 100
+    - Mode 2: Use table at 9681792 with value 100
+
+    Args:
+        var0: Cursor mode (0, 1, or 2)
+    """
+    i32_store(9681464, var0)
+
+    if var0 == 0:
+        # Mode 0 - use unit type table
+        i32_store(9681476, 9681696)
+        i32_store(9681468, 0)
+        # Get value from entity type table
+        unit_type = i32_load(9681696)
+        type_offset = unit_type * 404 + 9568096
+        value = i32_load(type_offset + 68)
+        i32_store(9681472, value)
+    elif var0 == 1:
+        # Mode 1 - default table
+        i32_store(9681476, 9681776)
+        i32_store(9681468, 0)
+        i32_store(9681472, 100)
+    else:
+        # Mode 2 - alternate table
+        i32_store(9681476, 9681792)
+        i32_store(9681468, 0)
+        i32_store(9681472, 100)
+
+
+# ============================================================================
+# ja: Find player and set color values (leaf, 0 callers)
+# ============================================================================
+
+def ja(var0: int, var1: int, var2: int, var3: int) -> int:
+    """
+    $ja: Find player by ID and set color components.
+
+    Searches player data for matching ID and sets RGB color values.
+
+    Args:
+        var0: Player ID to find
+        var1: Red color value
+        var2: Green color value
+        var3: Blue color value
+
+    Returns:
+        Player index (1-based) if found, 0 otherwise
+    """
+    player_count = i32_load(9142892)
+
+    if player_count < 2:
+        return 0
+
+    player_base = i32_load(9561692)
+
+    for i in range(1, player_count):
+        player_ptr = player_base + i * 286704
+        player_id = i32_load(player_ptr + 284616)
+        if player_id == var0:
+            # Found player - set color values
+            i32_store8(player_ptr + 283972, var1)  # Red
+            i32_store8(player_ptr + 283973, var2)  # Green
+            i32_store8(player_ptr + 283974, var3)  # Blue
+            return i
+
+    return 0
+
+
+# ============================================================================
+# ia: Find player and set alliance value (leaf, 0 callers)
+# ============================================================================
+
+def ia(var0: int, var1: int) -> int:
+    """
+    $ia: Find player by ID and set alliance value.
+
+    Searches player data for matching ID and sets alliance status.
+
+    Args:
+        var0: Player ID to find
+        var1: Alliance value to set
+
+    Returns:
+        Player index (1-based) if found, 0 otherwise
+    """
+    player_count = i32_load(9142892)
+
+    if player_count < 2:
+        return 0
+
+    player_base = i32_load(9561692)
+
+    for i in range(1, player_count):
+        player_ptr = player_base + i * 286704
+        player_id = i32_load(player_ptr + 284616)
+        if player_id == var0:
+            # Found player - set alliance value
+            i32_store(player_ptr + 283960, var1)
+            return i
+
+    return 0
+
+
+# ============================================================================
 # Aliases
 # ============================================================================
 
@@ -269,3 +424,9 @@ set_player_value = va
 get_player_data_ptr = ta
 init_game_state = sa
 find_player_by_id = ea
+get_viewport_offset = oa
+get_entity_count = ub
+set_player_selection = ua
+set_cursor_mode = ib
+set_player_color = ja
+set_player_alliance = ia
