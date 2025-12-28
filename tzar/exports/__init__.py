@@ -14,5 +14,6 @@ from tzar.exports.accessors import (
     Hc, Pe, V,
     I, H, Ja, Na, G, P, X,
     Ta, Pb, Wa, ab, Lb, Ra,
-    Hb, Dc, Ec, Pa, Cc, Qb
+    Hb, Dc, Ec, Pa, Cc, Qb,
+    Jc, bc, Fc, Ac, eb, Eb
 )
