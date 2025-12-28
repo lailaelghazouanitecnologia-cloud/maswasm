@@ -5,3 +5,4 @@ from tzar.game.getters import Ac
 from tzar.game.accessors import Cc, Dc, Da, E, Db, Bd, Dd
 from tzar.game.accessors2 import Eb, Ec, Fc, Gc, Ge, F, G
 from tzar.game.accessors3 import H, Hb, Hc, Pe, He, I, Ia, Ib
+from tzar.game.accessors4 import Ja, Jc, Jd, Je, Ke, Lb, Le
