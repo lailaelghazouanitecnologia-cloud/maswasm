@@ -1,12 +1,12 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T17:06:54.505699",
+  "updated": "2025-12-28T17:09:05.855279",
   "total": 1124,
   "by_status": {
-    "pending": 1030,
+    "pending": 1028,
     "stub": 0,
     "wip": 0,
-    "done": 94,
+    "done": 96,
     "verified": 0
   },
   "by_category": {
@@ -20,7 +20,7 @@
     },
     "unknown": {
       "total": 1086,
-      "done": 93
+      "done": 95
     }
   },
   "functions": {
@@ -3691,7 +3691,7 @@
       "notes": ""
     },
     "$$b": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3967,7 +3967,7 @@
       "notes": ""
     },
     "$$d": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""

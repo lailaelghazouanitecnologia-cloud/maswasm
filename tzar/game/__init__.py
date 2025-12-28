@@ -12,3 +12,4 @@ from tzar.game.accessors5 import (
 from tzar.game.accessors6 import (
     P, _a, _d, aa, ab, ad, ba, bb, bc, cf, da, dc, df, eb, ec, ef, fa
 )
+from tzar.game.accessors7 import dollar_b, dollar_d
