@@ -2341,3 +2341,126 @@ store_pair = Jd
 set_flag_9671156 = od
 get_value_9147292 = te
 get_value_9147296 = ue
+
+
+# ============================================================================
+# BATCH 43: Globals and config functions
+# ============================================================================
+
+# ============================================================================
+# xe: Load from 9687252
+# ============================================================================
+
+def xe() -> int:
+    """
+    $xe: Get value from address 9687252.
+
+    Returns:
+        Value at 9687252
+    """
+    return i32_load(9687252)
+
+
+# ============================================================================
+# Db: Store and return pointer
+# ============================================================================
+
+def Db(var0: int) -> int:
+    """
+    $Db: Store value at 9563944 and return 9563904.
+
+    Args:
+        var0: Value to store
+
+    Returns:
+        Constant 9563904
+    """
+    i32_store(9563944, var0)
+    return 9563904
+
+
+# ============================================================================
+# cf: Get global3
+# ============================================================================
+
+def cf() -> int:
+    """
+    $cf: Get global3 value.
+
+    Returns:
+        Value of global3
+    """
+    from tzar._runtime import global_get
+    return global_get('global3')
+
+
+# ============================================================================
+# df: Set global3-6
+# ============================================================================
+
+def df(var0: int, var1: int, var2: int, var3: int, var4: int) -> None:
+    """
+    $df: Set global3, global4, global5, global6.
+
+    Note: var4 is ignored.
+
+    Args:
+        var0: Value for global3
+        var1: Value for global4
+        var2: Value for global5
+        var3: Value for global6
+        var4: Ignored
+    """
+    from tzar._runtime import global_set
+    global_set('global3', var0)
+    global_set('global4', var1)
+    global_set('global5', var2)
+    global_set('global6', var3)
+
+
+# ============================================================================
+# ef: Atomic store global3 to 9688028
+# ============================================================================
+
+def ef() -> None:
+    """
+    $ef: Atomically store global3 to 9688028.
+    """
+    from tzar._runtime import global_get
+    i32_store(9688028, global_get('global3'))
+
+
+# ============================================================================
+# _c: Set config fields
+# ============================================================================
+
+def _c(var0: int, var1: int, var2: int, var3: int, var4: int,
+       var5: int, var6: int, var7: int, var8: int, var9: int) -> None:
+    """
+    $_c: Set multiple configuration fields.
+
+    Stores 10 values at various offsets from pointer at 9568088.
+    """
+    base = i32_load(9568088)
+    i32_store(base + 36, var6)
+    i32_store(base + 32, var5)
+    i32_store(base + 16, var4)
+    i32_store(base + 12, var3)
+    i32_store(base + 8, var2)
+    i32_store(base + 4, var1)
+    i32_store(base, var0)
+    i32_store8(base + 45, var8)
+    i32_store(base + 28, var7)
+    i32_store8(base + 44, var9)
+
+
+# ============================================================================
+# Batch 43 Aliases
+# ============================================================================
+
+get_value_9687252 = xe
+store_and_get_ptr = Db
+get_global3 = cf
+set_globals_3_6 = df
+atomic_store_global3 = ef
+set_config_fields = _c
