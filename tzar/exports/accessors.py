@@ -3026,3 +3026,151 @@ check_entity_type_field_316 = func912
 check_entity_type_field_324 = func924
 swar_avg_consecutive = func982
 swar_avg_pointers = func984
+
+
+# ============================================================================
+# BATCH 48: More SWAR averaging and memory operations
+# ============================================================================
+
+# ============================================================================
+# func983: SWAR byte averaging (var1, var1-4)
+# ============================================================================
+
+def func983(var0: int, var1: int) -> int:
+    """
+    $func983: SWAR byte averaging of two values.
+
+    Averages value at var1 with value at var1-4.
+
+    Args:
+        var0: Ignored
+        var1: Pointer to current value (previous value at var1-4)
+
+    Returns:
+        Averaged packed bytes
+    """
+    a = i32_load(var1)
+    b = i32_load(var1 - 4)
+    return ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+
+# ============================================================================
+# func985: SWAR byte averaging (var1-4, var0)
+# ============================================================================
+
+def func985(var0: int, var1: int) -> int:
+    """
+    $func985: SWAR byte averaging of two values.
+
+    Averages value at var1-4 with value at var0.
+
+    Args:
+        var0: Pointer to second value
+        var1: Pointer (uses var1-4 for first value)
+
+    Returns:
+        Averaged packed bytes
+    """
+    a = i32_load(var1 - 4)
+    b = i32_load(var0)
+    return ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+
+# ============================================================================
+# func1052: Memory copy if dest != src
+# ============================================================================
+
+def func1052(var0: int, var1: int, var2: int, var3: int) -> None:
+    """
+    $func1052: Copy memory if source and dest differ.
+
+    Only copies if var1 != var2 (avoids self-copy).
+
+    Args:
+        var0: Ignored
+        var1: Source address
+        var2: Destination address
+        var3: Number of bytes to copy
+    """
+    if var1 != var2:
+        memory_copy(var2, var1, var3)
+
+
+# ============================================================================
+# func1056: Zero 24 bytes at pointer
+# ============================================================================
+
+def func1056(var0: int) -> None:
+    """
+    $func1056: Zero 24 bytes at pointer.
+
+    Stores zeros at offsets 0, 8, and 16 as i64.
+
+    Args:
+        var0: Base pointer
+    """
+    i64_store(var0, 0)
+    i64_store(var0 + 8, 0)
+    i64_store(var0 + 16, 0)
+
+
+# ============================================================================
+# func744: Conditional store byte
+# ============================================================================
+
+def func744(var0: int, var1: int) -> None:
+    """
+    $func744: Store byte at 9142408 conditionally.
+
+    If var0 is 0 and flag at 9163794 is set, skip.
+    Otherwise store var0 at 9142408.
+
+    Args:
+        var0: Byte value to store
+        var1: Ignored
+    """
+    if var0 == 0:
+        if i32_load8_u(9163794) != 0:
+            return
+    i32_store8(9142408, var0)
+
+
+# ============================================================================
+# func926: Check entity type field 335 status
+# ============================================================================
+
+def func926(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func926: Check entity type field 335 status.
+
+    Returns 0 if entity index is non-zero and field 335 is non-zero.
+    Returns 1 otherwise.
+
+    Args:
+        var0-var4: Various parameters (only var1 used)
+
+    Returns:
+        0 if entity has field 335 set, 1 otherwise
+    """
+    entity_idx = i32_load(var1)
+    if entity_idx != 0:
+        entity_base = i32_load(9671128)
+        entity_addr = entity_base + entity_idx * 132
+        entity_type = i32_load8_u(entity_addr + 122)
+        type_addr = 9568096 + entity_type * 404
+        field_335 = i32_load8_u(type_addr + 335)
+        if field_335 != 0:
+            return 0
+    return 1
+
+
+# ============================================================================
+# Batch 48 Aliases
+# ============================================================================
+
+swar_avg_prev = func983
+swar_avg_mixed = func985
+memory_copy_if_diff = func1052
+zero_24_bytes = func1056
+conditional_store_byte = func744
+check_entity_type_field_335 = func926
