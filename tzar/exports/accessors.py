@@ -895,3 +895,153 @@ get_stack_ptr = lf
 set_stack_ptr = mf
 alloc_stack = nf
 check_alliance = Qa
+
+
+# ============================================================================
+# ma: Set multiple boolean flags (leaf, 0 callers)
+# ============================================================================
+
+def ma(var0: int, var1: int, var2: int, var3: int, var4: int) -> None:
+    """
+    $ma: Set 5 boolean flags at consecutive memory locations.
+
+    Args:
+        var0: Flag for 9561800
+        var1: Flag for 9561802
+        var2: Flag for 9561803
+        var3: Flag for 9561804
+        var4: Flag for 9561801
+    """
+    i32_store8(9561804, 1 if var3 != 0 else 0)
+    i32_store8(9561803, 1 if var2 != 0 else 0)
+    i32_store8(9561802, 1 if var1 != 0 else 0)
+    i32_store8(9561800, 1 if var0 != 0 else 0)
+    i32_store8(9561801, 1 if var4 != 0 else 0)
+
+
+# ============================================================================
+# vd: Get game mode value (leaf, 0 callers)
+# ============================================================================
+
+def vd() -> int:
+    """
+    $vd: Get game mode or configuration value.
+
+    Returns:
+        Value at 9143000
+    """
+    return i32_load(9143000)
+
+
+# ============================================================================
+# wa: Find player and set status (leaf, 0 callers)
+# ============================================================================
+
+def wa(var0: int, var1: int) -> None:
+    """
+    $wa: Find player by ID and set status value.
+
+    Searches for player with matching ID and sets offset 284604.
+
+    Args:
+        var0: Player ID to find
+        var1: Status value to set
+    """
+    player_base = i32_load(9561692)
+    player_count = i32_load(9142892)
+
+    if player_count < 2:
+        # No players to search, set on player 0
+        i32_store(player_base + 284604, var1)
+        return
+
+    found_idx = 0
+    for i in range(1, player_count):
+        player_ptr = player_base + i * 286704
+        if var0 == i32_load(player_ptr + 284616):
+            found_idx = i
+            break
+
+    # Set value at found player (or player 0 if not found)
+    target_ptr = player_base + found_idx * 286704
+    i32_store(target_ptr + 284604, var1)
+
+
+# ============================================================================
+# fb: Get entity type size/cost (leaf, 0 callers)
+# ============================================================================
+
+def fb(var0: int, var1: int) -> int:
+    """
+    $fb: Get entity type size or cost value.
+
+    Returns calculated value based on entity type and direction flag.
+
+    Args:
+        var0: Entity type index (must be <= 254)
+        var1: Direction flag (0 or non-zero)
+
+    Returns:
+        Calculated size/cost value, or 0 if invalid type
+    """
+    if var0 > 254:
+        return 0
+
+    type_base = var0 * 404 + 9568096
+
+    if var1:
+        # Get value at offset 180 + 8, multiply by 48
+        ptr = i32_load(type_base + 180) + 8
+        return i32_load(ptr) * 48
+    else:
+        # Get value at offset 144 (9568240 = 9568096 + 144), multiply by -48
+        ptr = type_base + 144
+        return i32_load(ptr) * -48
+
+
+# ============================================================================
+# rb: Get entity type category (leaf, 0 callers)
+# ============================================================================
+
+def rb(var0: int) -> int:
+    """
+    $rb: Get entity type category.
+
+    Args:
+        var0: Entity type index
+
+    Returns:
+        Category value at offset 264
+    """
+    type_base = var0 * 404 + 9568096
+    return i32_load(type_base + 264)
+
+
+# ============================================================================
+# qb: Get entity type attribute (leaf, 0 callers)
+# ============================================================================
+
+def qb(var0: int) -> int:
+    """
+    $qb: Get entity type attribute.
+
+    Args:
+        var0: Entity type index
+
+    Returns:
+        Attribute value at offset 84
+    """
+    type_base = var0 * 404 + 9568096
+    return i32_load(type_base + 84)
+
+
+# ============================================================================
+# Batch 31 Aliases
+# ============================================================================
+
+set_flags = ma
+get_game_mode = vd
+set_player_status = wa
+get_entity_size = fb
+get_entity_category = rb
+get_entity_attribute = qb
