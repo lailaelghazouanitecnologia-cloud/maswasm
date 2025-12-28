@@ -4,7 +4,10 @@ Simple accessor and state functions - batch 26.
 Leaf functions that get/set global state values.
 """
 
-from tzar._runtime import i32_load, i32_load8_u, i32_store, i32_store8
+from tzar._runtime import (
+    i32_load, i32_load8_u, i32_store, i32_store8,
+    i64_load, i64_store, f32_store
+)
 
 
 # ============================================================================
@@ -1198,3 +1201,143 @@ add_resources = wc
 find_entity = xc
 set_map_dims = Xa
 set_random_seed = C
+
+
+# ============================================================================
+# BATCH 33: More exported accessor functions
+# ============================================================================
+
+# ============================================================================
+# F: Store float value (leaf, 0 callers)
+# ============================================================================
+
+def F(var0: float) -> None:
+    """
+    $F: Store float value at address 40616.
+
+    Likely a game setting/configuration value.
+
+    Args:
+        var0: Float value to store
+    """
+    f32_store(40616, var0)
+
+
+# ============================================================================
+# E: Store byte value (leaf, 0 callers)
+# ============================================================================
+
+def E(var0: int) -> None:
+    """
+    $E: Store byte at address 9147336.
+
+    Single byte store, likely a flag or small value.
+
+    Args:
+        var0: Byte value (0-255)
+    """
+    i32_store8(9147336, var0)
+
+
+# ============================================================================
+# O: Get player data pointer (leaf, exported as O and Ob)
+# ============================================================================
+
+def O(var0: int) -> int:
+    """
+    $O: Get player data pointer by index.
+
+    Calculates pointer to player data structure.
+    Player stride = 286704 bytes.
+
+    Args:
+        var0: Player index
+
+    Returns:
+        Pointer to player data
+    """
+    return i32_load(9561692) + var0 * 286704
+
+
+# Alias for second export name
+Ob = O
+
+
+# ============================================================================
+# ba: Get player count (leaf, 0 callers)
+# ============================================================================
+
+def ba() -> int:
+    """
+    $ba: Get player count from appropriate address.
+
+    Uses select pattern to choose between two addresses based on flag.
+    If flag at 9147212 is non-zero: loads from 9142892
+    Otherwise: loads from 41092
+
+    Returns:
+        Player count value
+    """
+    addr = 9142892 if i32_load8_u(9147212) else 41092
+    return i32_load(addr)
+
+
+# ============================================================================
+# bb: Return constant address (leaf, 0 callers)
+# ============================================================================
+
+def bb() -> int:
+    """
+    $bb: Return constant address 9681488.
+
+    Likely a pointer to a static data structure.
+
+    Returns:
+        Constant 9681488
+    """
+    return 9681488
+
+
+# ============================================================================
+# D: XorShift random number generator (leaf, 1 caller)
+# ============================================================================
+
+def D(var0: int) -> int:
+    """
+    $D: XorShift random number generator.
+
+    Implements XorShift PRNG algorithm using 128-bit state
+    stored at addresses 9147312-9147324.
+
+    Args:
+        var0: Upper bound (exclusive) for result
+
+    Returns:
+        Random value in range [0, var0)
+    """
+    # Load state
+    var3 = i64_load(9147316)
+    var1 = i32_load(9147312)
+    i32_store(9147316, var1)  # Shift state
+    var2 = i32_load(9147324)
+    i64_store(9147320, var3)  # Shift state
+
+    # XorShift operations
+    var2 = (var2 ^ (var2 << 11)) & 0xFFFFFFFF
+    var1 = (var1 ^ (var1 >> 19) ^ (var2 >> 8) ^ var2) & 0xFFFFFFFF
+    i32_store(9147312, var1)
+
+    # Return result mod var0 (avoid division by zero)
+    return var1 % var0 if var0 != 0 else 0
+
+
+# ============================================================================
+# Batch 33 Aliases
+# ============================================================================
+
+store_float_setting = F
+set_byte_flag = E
+get_player_ptr = O
+get_player_count = ba
+get_static_data_ptr = bb
+random = D

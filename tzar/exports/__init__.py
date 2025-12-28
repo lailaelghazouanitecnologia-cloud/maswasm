@@ -8,5 +8,6 @@ from tzar.exports.accessors import (
     lc, fa, ga, ha, aa, Ie,
     se, kf, lf, mf, nf, Qa,
     ma, vd, wa, fb, rb, qb,
-    ic, da, wc, xc, Xa, C
+    ic, da, wc, xc, Xa, C,
+    F, E, O, Ob, ba, bb, D
 )
