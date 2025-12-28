@@ -16,5 +16,6 @@ from tzar.exports.accessors import (
     Ta, Pb, Wa, ab, Lb, Ra,
     Hb, Dc, Ec, Pa, Cc, Qb,
     Jc, bc, Fc, Ac, eb, Eb,
-    dc, ec, dollar_b, ad, dollar_d, Da
+    dc, ec, dollar_b, ad, dollar_d, Da,
+    _a, He, Ke, Le, Me, Je
 )
