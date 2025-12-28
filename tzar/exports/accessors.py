@@ -2735,3 +2735,132 @@ alpha_channel = func995
 load_offset_4 = func535
 load_offset_4_from_var1 = func988
 load_from_var1 = func989
+
+
+# ============================================================================
+# BATCH 46: More pointer accessors and state checks
+# ============================================================================
+
+# ============================================================================
+# func990: Load from first param
+# ============================================================================
+
+def func990(var0: int, var1: int) -> int:
+    """
+    $func990: Load i32 from var0.
+
+    Args:
+        var0: Pointer to load from
+        var1: Ignored
+
+    Returns:
+        Value at var0
+    """
+    return i32_load(var0)
+
+
+# ============================================================================
+# func882: Check flag at 9147213 is zero
+# ============================================================================
+
+def func882(var0: int, var1: int, var2: int) -> int:
+    """
+    $func882: Check if flag at 9147213 is zero.
+
+    Args:
+        var0-var2: Ignored
+
+    Returns:
+        1 if byte at 9147213 is zero, 0 otherwise
+    """
+    return 1 if i32_load8_u(9147213) == 0 else 0
+
+
+# ============================================================================
+# func930: Store byte to 9163794
+# ============================================================================
+
+def func930(var0: int, var1: int) -> None:
+    """
+    $func930: Store var0 as byte at 9163794.
+
+    Args:
+        var0: Byte value to store
+        var1: Ignored
+    """
+    i32_store8(9163794, var0)
+
+
+# ============================================================================
+# func987: Load from var1 - 4
+# ============================================================================
+
+def func987(var0: int, var1: int) -> int:
+    """
+    $func987: Load i32 from (var1 - 4).
+
+    Gets the value 4 bytes before var1 pointer.
+
+    Args:
+        var0: Ignored
+        var1: Base pointer
+
+    Returns:
+        Value at var1 - 4
+    """
+    return i32_load(var1 - 4)
+
+
+# ============================================================================
+# func884: Compare two global values
+# ============================================================================
+
+def func884(var0: int, var1: int, var2: int) -> int:
+    """
+    $func884: Compare values at 59164 and 9561844.
+
+    Args:
+        var0-var2: Ignored
+
+    Returns:
+        1 if values are equal, 0 otherwise
+    """
+    val1 = i32_load(59164)
+    val2 = i32_load(9561844)
+    return 1 if val1 == val2 else 0
+
+
+# ============================================================================
+# func898: Check entity state byte 125 == 3
+# ============================================================================
+
+def func898(var0: int) -> int:
+    """
+    $func898: Check if entity state byte 125 equals 3.
+
+    Gets entity index from var0+32, looks up entity,
+    checks if byte 125 (state field) equals 3.
+
+    Args:
+        var0: Pointer containing entity index at offset 32
+
+    Returns:
+        1 if entity state is 3, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var0 + 32)
+    entity_addr = entity_base + entity_idx * 132
+    state_byte = i32_load8_u(entity_addr + 125)
+    return 1 if state_byte == 3 else 0
+
+
+# ============================================================================
+# Batch 46 Aliases
+# ============================================================================
+
+load_from_var0 = func990
+check_flag_9147213 = func882
+store_byte_9163794 = func930
+load_before_ptr = func987
+compare_globals = func884
+check_entity_state_3 = func898
