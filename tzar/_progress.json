@@ -1,10 +1,10 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T17:09:05.855279",
+  "updated": "2025-12-28T17:19:40.940788",
   "total": 1124,
   "by_status": {
-    "pending": 1028,
-    "stub": 0,
+    "pending": 1002,
+    "stub": 26,
     "wip": 0,
     "done": 96,
     "verified": 0
@@ -25,157 +25,157 @@
   },
   "functions": {
     "$a.b": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.c": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.d": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.e": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.f": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.g": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.h": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.i": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.j": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.k": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.l": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.m": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.n": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.o": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.p": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.q": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.r": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.s": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.t": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.u": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.v": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.w": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.x": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.y": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.z": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
     },
     "$a.A": {
-      "status": "pending",
+      "status": "stub",
       "category": "imports",
       "file": null,
       "notes": ""
