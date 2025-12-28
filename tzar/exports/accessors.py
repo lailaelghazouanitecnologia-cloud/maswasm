@@ -2127,3 +2127,114 @@ get_value_9681976 = Ke
 get_value_9687224 = Le
 get_value_9687216 = Me
 get_player_color = Je
+
+
+# ============================================================================
+# BATCH 41: More accessors and setters
+# ============================================================================
+
+# ============================================================================
+# Ge: Load byte from 9147208
+# ============================================================================
+
+def Ge() -> int:
+    """
+    $Ge: Get byte from address 9147208.
+
+    Returns:
+        Byte value at 9147208
+    """
+    return i32_load8_u(9147208)
+
+
+# ============================================================================
+# Oe: Get map size
+# ============================================================================
+
+def Oe() -> int:
+    """
+    $Oe: Get map size.
+
+    Returns:
+        Map size from 9142440
+    """
+    return i32_load(9142440)
+
+
+# ============================================================================
+# Qe: Set game state offset 48 (masked)
+# ============================================================================
+
+def Qe(var0: int) -> None:
+    """
+    $Qe: Set game state offset 48 with masked value.
+
+    Only uses lower 2 bits of input (var0 & 3).
+
+    Args:
+        var0: Value (lower 2 bits used)
+    """
+    base = i32_load(9142424)
+    i32_store(base + 48, var0 & 3)
+
+
+# ============================================================================
+# _d: Load byte from 9142388
+# ============================================================================
+
+def _d() -> int:
+    """
+    $_d: Get byte from address 9142388.
+
+    Returns:
+        Byte value at 9142388
+    """
+    return i32_load8_u(9142388)
+
+
+# ============================================================================
+# Bd: Store to offset 80 array
+# ============================================================================
+
+def Bd(var0: int, var1: int) -> None:
+    """
+    $Bd: Store value to array at offset 80.
+
+    Stores var1 at index var0 in array pointed to by 9568088+80.
+
+    Args:
+        var0: Array index
+        var1: Value to store
+    """
+    array_ptr = i32_load(i32_load(9568088) + 80)
+    i32_store(array_ptr + var0 * 4, var1)
+
+
+# ============================================================================
+# Dd: Store to offset 96 array
+# ============================================================================
+
+def Dd(var0: int, var1: int) -> None:
+    """
+    $Dd: Store value to array at offset 96.
+
+    Stores var1 at index var0 in array pointed to by 9568088+96.
+
+    Args:
+        var0: Array index
+        var1: Value to store
+    """
+    array_ptr = i32_load(i32_load(9568088) + 96)
+    i32_store(array_ptr + var0 * 4, var1)
+
+
+# ============================================================================
+# Batch 41 Aliases
+# ============================================================================
+
+get_byte_9147208 = Ge
+get_map_size = Oe
+set_game_state_48 = Qe
+get_byte_9142388 = _d
+store_array_80 = Bd
+store_array_96 = Dd
