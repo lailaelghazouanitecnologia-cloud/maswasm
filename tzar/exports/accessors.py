@@ -3525,3 +3525,343 @@ broadcast_i64 = func1007
 search_non_255_stride4 = func1060
 pack_bgr = func996
 pack_rgb = func1000
+
+
+# ============================================================================
+# BATCH 51: Critical Memory Management Functions (Higher Depth)
+# ============================================================================
+
+# ============================================================================
+# func26: Memory allocation (malloc wrapper)
+# Depth: 6, Called by: 170 functions
+# ============================================================================
+
+def func26(var0: int) -> int:
+    """
+    $func26: Memory allocation function (malloc wrapper).
+
+    Allocates memory using sbrk ($$e). Retries with OOM handler if needed.
+    Critical function called by 170+ other functions.
+
+    Args:
+        var0: Size to allocate (minimum 1)
+
+    Returns:
+        Pointer to allocated memory
+    """
+    from tzar._runtime import abort, atomic_load, call_indirect
+    from tzar.exports.accessors import dollar_e
+
+    # Ensure minimum size of 1
+    if var0 <= 1:
+        var0 = 1
+
+    while True:
+        # Try to allocate via sbrk
+        ptr = dollar_e(var0)
+        if ptr != 0:
+            return ptr
+
+        # Check for OOM handler
+        oom_handler = atomic_load(9690984)
+        if oom_handler != 0:
+            # Call OOM handler and retry
+            call_indirect(oom_handler)
+            continue
+
+        # No handler - abort
+        abort()
+        return 0  # unreachable
+
+
+# ============================================================================
+# func38: Object/buffer allocation
+# Depth: 7, Called by: 22 functions
+# ============================================================================
+
+def func38(var0: int) -> None:
+    """
+    $func38: Object/buffer allocation and initialization.
+
+    Complex allocation function that manages buffers. Uses func26 for
+    memory allocation.
+
+    Args:
+        var0: Size or object reference
+    """
+    from tzar._runtime import global_get, global_set, memory_fill
+
+    # Stack frame
+    sp = global_get('global0')
+    var3 = sp - 48
+    global_set('global0', var3)
+
+    if var0 >= 0x40000000:  # 1073741823
+        var5 = var0 - 0x40000000
+        var1 = i32_load(9299896)
+        var2 = i32_load(9299892)
+
+        if var1 != var2:
+            var4 = i32_load(9299888)
+            # Load from buffer
+            var2 = i32_load(var4 + var1)
+            i32_store(9299896, (var1 + 4) & i32_load(9299884))
+        else:
+            # Allocate new buffer
+            var2 = func26(var5 * 4 + 4)
+            if var2 != 0:
+                i32_store(var2, var5)
+                var2 += 4
+
+        i32_store(var0, var2)
+    else:
+        # Regular allocation path
+        if var0 != 0:
+            var2 = func26(var0)
+            i32_store(var3 + 32, var2)
+
+            if var2 != 0:
+                # Initialize allocated memory
+                memory_fill(var2, 0, var0)
+                var4 = var2
+
+            i32_store(var0, var4)
+
+    # Restore stack
+    global_set('global0', sp)
+
+
+# ============================================================================
+# func71: Array/vector reallocation
+# Depth: 7, Called by: 10 functions (Ca, We, Y, Z, _, xa, etc.)
+# ============================================================================
+
+def func71(var0: int, var1: int, var2: int, var3: int, var4: int, var5: int) -> None:
+    """
+    $func71: Array/vector reallocation.
+
+    Reallocates or extends an array/vector. Used by game entity management.
+
+    Args:
+        var0: Target array pointer
+        var1: Source data pointer
+        var2: Current element count
+        var3: New capacity needed
+        var4: Additional elements
+        var5: Element size
+    """
+    from tzar._runtime import global_get, global_set, memory_copy
+
+    # Stack frame
+    sp = global_get('global0')
+    var6 = sp - 48
+    global_set('global0', var6)
+
+    # Calculate new size: (var2 + var4 + 6) * 4
+    new_count = var2 + var4 + 6
+    if new_count > 0x3FFFFFFF:  # Overflow check
+        alloc_size = -1
+    else:
+        alloc_size = new_count * 4
+
+    # Allocate new buffer
+    new_ptr = func26(alloc_size)
+
+    if new_ptr != 0:
+        # Copy existing data
+        if var2 > 0:
+            memory_copy(new_ptr, var1, var2 * var5)
+
+        # Initialize new elements
+        if var4 > 0:
+            from tzar._runtime import memory_fill
+            memory_fill(new_ptr + var2 * var5, 0, var4 * var5)
+
+        # Update pointers
+        old_ptr = i32_load(var0)
+        if old_ptr != 0:
+            # Free old buffer (call af)
+            af(old_ptr)
+
+        i32_store(var0, new_ptr)
+        i32_store(var0 + 4, new_count)
+
+    # Update global state
+    i32_store(59164, i32_load(9142384))
+
+    # Restore stack
+    global_set('global0', sp)
+
+
+# ============================================================================
+# Batch 51 Aliases
+# ============================================================================
+
+malloc = func26
+alloc_buffer = func38
+realloc_array = func71
+
+
+# ============================================================================
+# Higher-Level Game Functions (unlocked by memory functions)
+# ============================================================================
+
+# ============================================================================
+# ac: Wrapper for func38
+# Depth: 7, exported
+# ============================================================================
+
+def ac(var0: int, var1: int) -> None:
+    """
+    $ac: Object allocation wrapper.
+
+    Simple wrapper that calls func38 with var0.
+
+    Args:
+        var0: Size/object to allocate
+        var1: Ignored
+    """
+    func38(var0)
+
+
+# ============================================================================
+# oe: Allocate and store at global slot 1
+# Depth: 7, exported
+# ============================================================================
+
+def oe(var0: int) -> int:
+    """
+    $oe: Allocate memory and store pointer at 9687232.
+
+    Allocates var0 bytes and stores result at global slot.
+
+    Args:
+        var0: Size to allocate
+
+    Returns:
+        Pointer to allocated memory
+    """
+    ptr = func26(var0)
+    i32_store(9687232, ptr)
+    return ptr
+
+
+# ============================================================================
+# pe: Allocate and store at global slot 2
+# Depth: 7, exported
+# ============================================================================
+
+def pe(var0: int) -> int:
+    """
+    $pe: Allocate memory and store pointer at 9687236.
+
+    Allocates var0 bytes and stores result at global slot.
+
+    Args:
+        var0: Size to allocate
+
+    Returns:
+        Pointer to allocated memory
+    """
+    ptr = func26(var0)
+    i32_store(9687236, ptr)
+    return ptr
+
+
+# ============================================================================
+# je: Store size and allocate
+# Depth: 7, exported
+# ============================================================================
+
+def je(var0: int) -> int:
+    """
+    $je: Store allocation size and allocate memory.
+
+    Stores var0 at 9687216, allocates var0 bytes, stores at 9687212.
+
+    Args:
+        var0: Size to allocate
+
+    Returns:
+        Pointer to allocated memory
+    """
+    i32_store(9687216, var0)
+    ptr = func26(var0)
+    i32_store(9687212, ptr)
+    return ptr
+
+
+# ============================================================================
+# Ca: Vector/array setup
+# Depth: 8, exported
+# ============================================================================
+
+def Ca(var0: int) -> None:
+    """
+    $Ca: Initialize a vector/array with capacity.
+
+    Uses func71 to set up array storage.
+
+    Args:
+        var0: Initial value/capacity
+    """
+    from tzar._runtime import global_get, global_set
+
+    sp = global_get('global0')
+    var1 = sp - 16
+    global_set('global0', var1)
+
+    # Store var0 at stack offset 12
+    i32_store(var1 + 12, var0)
+
+    # Call func71: realloc_array(21, 0, 0, &var0, 1, 0)
+    func71(21, 0, 0, var1 + 12, 1, 0)
+
+    global_set('global0', sp)
+
+
+# ============================================================================
+# J: Allocate and copy global table
+# Depth: 7, exported
+# ============================================================================
+
+def J(var0: int) -> int:
+    """
+    $J: Allocate array and copy from global table at 9147392.
+
+    Copies var0 entries from the global table.
+
+    Args:
+        var0: Number of entries to copy
+
+    Returns:
+        Pointer to new array
+    """
+    # Calculate allocation size with overflow check
+    if var0 > 0x3FFFFFFF:
+        alloc_size = -1
+    else:
+        alloc_size = var0 * 4
+
+    ptr = func26(alloc_size)
+
+    # Copy entries from table at 9147392
+    if var0 > 0:
+        for i in range(var0):
+            offset = i * 4
+            value = i32_load(9147392 + offset)
+            i32_store(ptr + offset, value)
+
+    return ptr
+
+
+# ============================================================================
+# Batch 51 Game Function Aliases
+# ============================================================================
+
+alloc_wrapper = ac
+alloc_global1 = oe
+alloc_global2 = pe
+alloc_with_size_store = je
+init_vector = Ca
+copy_global_table = J
