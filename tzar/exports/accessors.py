@@ -1045,3 +1045,156 @@ set_player_status = wa
 get_entity_size = fb
 get_entity_category = rb
 get_entity_attribute = qb
+
+
+# ============================================================================
+# ic: Clear UI flag (leaf, 0 callers)
+# ============================================================================
+
+def ic() -> None:
+    """
+    $ic: Clear UI/dialog flag.
+
+    Clears flag at 9140304.
+    """
+    i32_store8(9140304, 0)
+
+
+# ============================================================================
+# da: Set dialog/UI state (leaf, 0 callers)
+# ============================================================================
+
+def da(var0: int, var1: int, var2: int) -> None:
+    """
+    $da: Set dialog/UI state values.
+
+    If previous value exists and var1 is set, enables the flag.
+
+    Args:
+        var0: Main value for 9142384
+        var1: Flag value for 9142388
+        var2: Unused
+    """
+    prev_val = i32_load(9142384)
+
+    if prev_val and var1:
+        i32_store8(9140304, 1)
+
+    i32_store8(9142388, var1)
+    i32_store(9142384, var0)
+
+
+# ============================================================================
+# wc: Add to player resource counters (leaf, 0 callers)
+# ============================================================================
+
+def wc(var0: int, var1: int, var2: int, var3: int, var4: int) -> None:
+    """
+    $wc: Add values to player resource counters.
+
+    Adds to 4 consecutive counter values for specified player.
+
+    Args:
+        var0: Amount to add to offset 283848
+        var1: Amount to add to offset 283852
+        var2: Amount to add to offset 283856
+        var3: Amount to add to offset 283860
+        var4: Player index
+    """
+    player_base = i32_load(9561692)
+    player_ptr = player_base + var4 * 286704
+
+    # Add to each counter
+    curr = i32_load(player_ptr + 283848)
+    i32_store(player_ptr + 283848, curr + var0)
+
+    curr = i32_load(player_ptr + 283852)
+    i32_store(player_ptr + 283852, curr + var1)
+
+    curr = i32_load(player_ptr + 283856)
+    i32_store(player_ptr + 283856, curr + var2)
+
+    curr = i32_load(player_ptr + 283860)
+    i32_store(player_ptr + 283860, curr + var3)
+
+
+# ============================================================================
+# xc: Find entity by type and owner (leaf, 0 callers)
+# ============================================================================
+
+def xc(var0: int, var1: int) -> int:
+    """
+    $xc: Find entity matching type and owner.
+
+    Searches entity table for matching entity.
+
+    Args:
+        var0: Entity type to find
+        var1: Owner player index
+
+    Returns:
+        Entity index if found, 0 otherwise
+    """
+    entity_count = i32_load(9142844)
+
+    if entity_count < 4:
+        return 3 if entity_count >= 3 else 0
+
+    entity_base = i32_load(9671128)
+
+    for i in range(3, entity_count):
+        entity_ptr = entity_base + i * 132
+        entity_type = i32_load(entity_ptr + 110) & 0xFFFF  # i32.load16_u
+        if var0 == entity_type:
+            entity_owner = i32_load8_u(entity_ptr + 122)
+            if entity_owner == var1:
+                return i
+
+    return 0
+
+
+# ============================================================================
+# Xa: Set map dimensions (leaf, 0 callers)
+# ============================================================================
+
+def Xa(var0: int, var1: int) -> None:
+    """
+    $Xa: Set map dimension values.
+
+    Args:
+        var0: Value for 9142952 (width?)
+        var1: Value for 9142956 (height?)
+    """
+    i32_store(9142956, var1)
+    i32_store(9142952, var0)
+
+
+# ============================================================================
+# C: Set random seed (leaf, 0 callers)
+# ============================================================================
+
+def C(var0: int) -> None:
+    """
+    $C: Initialize random number generator seed.
+
+    Sets seed and derived XOR values for PRNG.
+
+    Args:
+        var0: Seed value
+    """
+    i32_store(9147312, var0)
+    i32_store(9147324, var0 ^ 0xFFFFFFFF)  # -1 xor = bitwise NOT
+    i32_store(9147320, var0 ^ 0xA5A5A5A5)  # -1515870811
+    i32_store(9147316, var0 ^ 0x5A5A5A5A)  # 1515870810
+
+
+# ============================================================================
+# Batch 32 Aliases
+# ============================================================================
+
+clear_ui_flag = ic
+set_dialog_state = da
+add_resources = wc
+find_entity = xc
+set_map_dims = Xa
+set_random_seed = C

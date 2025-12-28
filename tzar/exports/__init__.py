@@ -7,5 +7,6 @@ from tzar.exports.accessors import (
     wb, vb, zb, yb, Q, R,
     lc, fa, ga, ha, aa, Ie,
     se, kf, lf, mf, nf, Qa,
-    ma, vd, wa, fb, rb, qb
+    ma, vd, wa, fb, rb, qb,
+    ic, da, wc, xc, Xa, C
 )
