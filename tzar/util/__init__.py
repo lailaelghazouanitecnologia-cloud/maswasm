@@ -8,3 +8,7 @@ from tzar.util.simple_wrappers import (
 from tzar.util.number_format import (
     func251, func215, func214, func213, func254
 )
+
+from tzar.util.string_helpers import (
+    func312, func307, func306, func314, func294, func291
+)

@@ -1,12 +1,12 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T17:38:32.711568",
+  "updated": "2025-12-28T17:41:54.661856",
   "total": 1124,
   "by_status": {
-    "pending": 976,
+    "pending": 967,
     "stub": 26,
     "wip": 0,
-    "done": 122,
+    "done": 131,
     "verified": 0
   },
   "by_category": {
@@ -16,11 +16,11 @@
     },
     "memory": {
       "total": 12,
-      "done": 3
+      "done": 4
     },
     "unknown": {
       "total": 1086,
-      "done": 119
+      "done": 127
     }
   },
   "functions": {
@@ -181,7 +181,7 @@
       "notes": ""
     },
     "$func26": {
-      "status": "pending",
+      "status": "done",
       "category": "memory",
       "file": null,
       "notes": ""
@@ -193,7 +193,7 @@
       "notes": ""
     },
     "$func28": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -403,7 +403,7 @@
       "notes": ""
     },
     "$func63": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -1771,7 +1771,7 @@
       "notes": ""
     },
     "$func291": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -1789,7 +1789,7 @@
       "notes": ""
     },
     "$func294": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -1861,13 +1861,13 @@
       "notes": ""
     },
     "$func306": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
     },
     "$func307": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -1897,7 +1897,7 @@
       "notes": ""
     },
     "$func312": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -1909,7 +1909,7 @@
       "notes": ""
     },
     "$func314": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
