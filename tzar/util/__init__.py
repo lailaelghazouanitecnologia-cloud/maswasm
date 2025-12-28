@@ -12,3 +12,7 @@ from tzar.util.number_format import (
 from tzar.util.string_helpers import (
     func312, func307, func306, func314, func294, func291
 )
+
+from tzar.util.collections import (
+    func372, func442, func390, func441, func105
+)
