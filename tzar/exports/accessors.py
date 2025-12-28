@@ -3174,3 +3174,173 @@ memory_copy_if_diff = func1052
 zero_24_bytes = func1056
 conditional_store_byte = func744
 check_entity_type_field_335 = func926
+
+
+# ============================================================================
+# BATCH 49: Buffer operations and entity updates
+# ============================================================================
+
+# ============================================================================
+# func784: Clear entity offset 100 if match
+# ============================================================================
+
+def func784(var0: int) -> None:
+    """
+    $func784: Clear entity offset 100 if it matches var0 offset 28.
+
+    Looks up entity from selection table, clears offset 100 if it
+    matches the value at var0 offset 28.
+
+    Args:
+        var0: Pointer containing entity ref at offset 44 and match value at offset 28
+    """
+    entity_base = i32_load(9671128)
+    selection_base = i32_load(9215884)
+    selection_idx = i32_load(var0 + 44)
+    entity_idx = i32_load(selection_base + (selection_idx << 4) + 12)
+    entity_addr = entity_base + entity_idx * 132
+    if i32_load(entity_addr + 100) == i32_load(var0 + 28):
+        i32_store(entity_addr + 100, 0)
+
+
+# ============================================================================
+# func1107: Fill 8 i64 values at 32-byte intervals
+# ============================================================================
+
+def func1107(var0: int) -> None:
+    """
+    $func1107: Fill 8 i64 slots with sentinel value.
+
+    Stores -9187201950435737472 (0x8080808080808080) at 8 offsets.
+    This is a common pattern for marking slots as empty.
+
+    Args:
+        var0: Base pointer
+    """
+    sentinel = -9187201950435737472  # 0x8080808080808080
+    i64_store(var0, sentinel)
+    i64_store(var0 + 32, sentinel)
+    i64_store(var0 + 64, sentinel)
+    i64_store(var0 + 96, sentinel)
+    i64_store(var0 + 128, sentinel)
+    i64_store(var0 + 160, sentinel)
+    i64_store(var0 + 192, sentinel)
+    i64_store(var0 + 224, sentinel)
+
+
+# ============================================================================
+# func1059: Search for non-255 byte
+# ============================================================================
+
+def func1059(var0: int, var1: int) -> int:
+    """
+    $func1059: Search for first non-255 byte in buffer.
+
+    Scans up to var1 bytes starting at var0.
+
+    Args:
+        var0: Buffer pointer
+        var1: Max bytes to scan
+
+    Returns:
+        1 if non-255 byte found, 0 if all 255s or empty
+    """
+    while var1 > 0:
+        var1 -= 1
+        b = i32_load8_u(var0)
+        var0 += 1
+        if b != 255:
+            return 1
+    return 0
+
+
+# ============================================================================
+# func312: Set string length (SSO pattern)
+# ============================================================================
+
+def func312(var0: int, var1: int) -> None:
+    """
+    $func312: Set string length using SSO pattern.
+
+    If high bit of byte 11 is set, stores as heap length.
+    Otherwise stores in low 7 bits of byte 11 (short string).
+
+    Args:
+        var0: String object pointer
+        var1: New length
+    """
+    flags = i32_load8_u(var0 + 11)
+    if (flags >> 7) != 0:
+        # Heap-allocated: store length at offset 4
+        i32_store(var0 + 4, var1)
+    else:
+        # Short string: store in byte 11 low bits, clear high bit
+        new_flags = (flags & 0x80) | var1
+        i32_store8(var0 + 11, new_flags)
+        i32_store8(var0 + 11, i32_load8_u(var0 + 11) & 0x7F)
+
+
+# ============================================================================
+# func392: Ring buffer read
+# ============================================================================
+
+def func392(var0: int, var1: int) -> None:
+    """
+    $func392: Read from ring buffer.
+
+    Copies 12-byte entry from ring buffer to var0, advances index.
+
+    Args:
+        var0: Destination pointer
+        var1: Ring buffer state pointer
+    """
+    buffer_base = i32_load(var1 + 36)
+    current_idx = i32_load(var1 + 44)
+    entry_addr = buffer_base + current_idx * 12
+
+    # Copy 12 bytes (i64 + i32)
+    i64_store(var0, i64_load(entry_addr))
+    i32_store(var0 + 8, i32_load(entry_addr + 8))
+
+    # Advance index with wrap
+    capacity = i32_load(var1 + 40)
+    i32_store(var1 + 44, (current_idx + 1) % capacity)
+
+
+# ============================================================================
+# ob: Counter with mask 3
+# ============================================================================
+
+def ob(var0: int, var1: int) -> int:
+    """
+    $ob: Add to counter and mask with 3.
+
+    Adds var0 to either 9681816 or 9681820 based on var1.
+    Result is masked with 3 (values 0-3).
+
+    Args:
+        var0: Value to add
+        var1: If non-zero, use 9681816; else 9681820
+
+    Returns:
+        New counter value (0-3)
+    """
+    if var1 != 0:
+        addr = 9681816
+    else:
+        addr = 9681820
+    new_val = (i32_load(addr) + var0) & 3
+    i32_store(addr, new_val)
+    return new_val
+
+
+# ============================================================================
+# Batch 49 Aliases
+# ============================================================================
+
+clear_entity_ref = func784
+fill_sentinel_slots = func1107
+search_non_255 = func1059
+set_string_length = func312
+ring_buffer_read = func392
+counter_mod_4 = ob

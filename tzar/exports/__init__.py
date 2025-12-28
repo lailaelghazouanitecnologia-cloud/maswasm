@@ -25,5 +25,6 @@ from tzar.exports.accessors import (
     func496, func548, func995, func535, func988, func989,
     func990, func882, func930, func987, func884, func898,
     func724, func735, func912, func924, func982, func984,
-    func983, func985, func1052, func1056, func744, func926
+    func983, func985, func1052, func1056, func744, func926,
+    func784, func1107, func1059, func312, func392, ob
 )
