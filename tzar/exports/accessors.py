@@ -1428,3 +1428,151 @@ def V(var0: int, var1: int, var2: int) -> None:
 
 set_player_resource = V
 get_game_state_48 = Hc
+
+
+# ============================================================================
+# BATCH 35: More simple exported accessors
+# ============================================================================
+
+# ============================================================================
+# I: Return constant 356 (likely entity struct size or similar)
+# ============================================================================
+
+def I() -> int:
+    """
+    $I: Return constant 356.
+
+    Likely returns a struct size or constant value.
+
+    Returns:
+        356
+    """
+    return 356
+
+
+# ============================================================================
+# H: Get value from 9142848
+# ============================================================================
+
+def H() -> int:
+    """
+    $H: Get value from address 9142848.
+
+    Returns:
+        Value at 9142848
+    """
+    return i32_load(9142848)
+
+
+# ============================================================================
+# Ja: Get max player index (count - 1)
+# ============================================================================
+
+def Ja() -> int:
+    """
+    $Ja: Get maximum player index.
+
+    Returns player count - 1 (i.e., max valid index).
+
+    Returns:
+        Maximum player index
+    """
+    return i32_load(41092) - 1
+
+
+# ============================================================================
+# Na: Return constant 9561856 (pointer)
+# ============================================================================
+
+def Na() -> int:
+    """
+    $Na: Return constant address 9561856.
+
+    Likely a pointer to a data structure.
+
+    Returns:
+        9561856
+    """
+    return 9561856
+
+
+# ============================================================================
+# G: Bounds check function
+# ============================================================================
+
+def G(var0: int, var1: int) -> int:
+    """
+    $G: Check if coordinates are within map bounds.
+
+    Returns 1 if var0 and var1 are valid coordinates within map size.
+    Map size is stored at 9142440.
+
+    Args:
+        var0: X coordinate
+        var1: Y coordinate
+
+    Returns:
+        1 if in bounds, 0 otherwise
+    """
+    var2 = i32_load(9142440)  # Map size
+    return int(
+        (var2 > var1) and
+        (var0 < var2) and
+        ((var0 | var1) >= 0)
+    )
+
+
+# ============================================================================
+# P: Get current player map position
+# ============================================================================
+
+def P() -> int:
+    """
+    $P: Calculate current player's position on map.
+
+    Computes: map_size * player[current].offset_y + player[current].offset_x
+
+    Returns:
+        Position index on map
+    """
+    map_size = i32_load(9142440)
+    current_player = i32_load(9142872)
+    player_ptr = i32_load(9561692) + current_player * 286704
+    offset_x = i32_load(player_ptr + 283872)
+    offset_y = i32_load(player_ptr + 283876)
+    return map_size * offset_y + offset_x
+
+
+# ============================================================================
+# X: Check if entity is selected
+# ============================================================================
+
+def X(var0: int) -> int:
+    """
+    $X: Check if entity ID matches current selection.
+
+    Args:
+        var0: Entity ID to check
+
+    Returns:
+        1 if entity is selected, 0 otherwise
+    """
+    if var0 == 0:
+        return 0
+    current_player = i32_load(9142872)
+    player_ptr = i32_load(9561692) + current_player * 286704
+    selected = i32_load(player_ptr + 284608)
+    return int(selected == var0)
+
+
+# ============================================================================
+# Batch 35 Aliases
+# ============================================================================
+
+get_struct_size = I
+get_value_9142848 = H
+get_max_player_idx = Ja
+get_ptr_9561856 = Na
+is_in_bounds = G
+get_player_map_pos = P
+is_selected = X

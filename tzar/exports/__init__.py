@@ -11,5 +11,6 @@ from tzar.exports.accessors import (
     ic, da, wc, xc, Xa, C,
     F, E, O, Ob, ba, bb, D,
     Ga, Se, Ba, Fa, Jb, he, Oa, Kd, Ld,
-    Hc, Pe, V
+    Hc, Pe, V,
+    I, H, Ja, Na, G, P, X
 )
