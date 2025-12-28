@@ -3344,3 +3344,184 @@ search_non_255 = func1059
 set_string_length = func312
 ring_buffer_read = func392
 counter_mod_4 = ob
+
+
+# ============================================================================
+# BATCH 50: Entity state, SWAR, and pixel packing
+# ============================================================================
+
+# ============================================================================
+# func783: Clear entity state if type matches
+# ============================================================================
+
+def func783(var0: int) -> None:
+    """
+    $func783: Clear entity state byte 125 if conditions match.
+
+    Checks if entity type matches 38528 and state != 3,
+    then clears state to 0.
+
+    Args:
+        var0: Pointer with selection index at offset 44
+    """
+    expected_type = i32_load(38528)
+    entity_base = i32_load(9671128)
+    selection_base = i32_load(9215884)
+    selection_idx = i32_load(var0 + 44)
+    entity_idx = i32_load(selection_base + (selection_idx << 4) + 12)
+    entity_addr = entity_base + entity_idx * 132
+
+    if i32_load8_u(entity_addr + 122) != expected_type:
+        return
+    if i32_load8_u(entity_addr + 125) == 3:
+        return
+    i32_store8(entity_addr + 125, 0)
+
+
+# ============================================================================
+# func986: Double SWAR averaging
+# ============================================================================
+
+def func986(var0: int, var1: int) -> int:
+    """
+    $func986: Double SWAR byte averaging.
+
+    First averages (var0, var1+4), then averages result with var1.
+
+    Args:
+        var0: Pointer to first value
+        var1: Pointer to two values
+
+    Returns:
+        Double-averaged packed bytes
+    """
+    a = i32_load(var1 + 4)
+    b = i32_load(var0)
+    # First average
+    avg1 = ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+    c = i32_load(var1)
+    # Second average
+    return ((avg1 ^ c) >> 1) & 0x7F7F7F7F + (avg1 & c)
+
+
+# ============================================================================
+# func1007: Broadcast i64 from var0-32 to 8 slots
+# ============================================================================
+
+def func1007(var0: int) -> None:
+    """
+    $func1007: Broadcast i64 value to 8 consecutive slots.
+
+    Reads i64 from var0-32 and stores to offsets 0,32,64,96,128,160,192,224.
+
+    Args:
+        var0: Base pointer (source is at var0-32)
+    """
+    val = i64_load(var0 - 32)
+    i64_store(var0, val)
+    i64_store(var0 + 32, val)
+    i64_store(var0 + 64, val)
+    i64_store(var0 + 96, val)
+    i64_store(var0 + 128, val)
+    i64_store(var0 + 160, val)
+    i64_store(var0 + 192, val)
+    i64_store(var0 + 224, val)
+
+
+# ============================================================================
+# func1060: Search non-255 with stride 4
+# ============================================================================
+
+def func1060(var0: int, var1: int) -> int:
+    """
+    $func1060: Search for non-255 byte with stride 4.
+
+    Similar to func1059 but checks every 4th byte.
+
+    Args:
+        var0: Buffer pointer
+        var1: Number of iterations
+
+    Returns:
+        1 if non-255 found, 0 otherwise
+    """
+    if var1 <= 0:
+        return 0
+
+    offset = 0
+    while var1 >= 1:
+        if i32_load8_u(var0 + offset) != 255:
+            return 1
+        offset += 4
+        var1 -= 1
+
+    return 0
+
+
+# ============================================================================
+# func996: Pack i32 array to BGR bytes
+# ============================================================================
+
+def func996(var0: int, var1: int, var2: int) -> None:
+    """
+    $func996: Pack i32 pixel array to BGR byte array.
+
+    Extracts B, G, R bytes from each i32 and stores as BGR triplet.
+
+    Args:
+        var0: Source i32 array pointer
+        var1: Number of pixels
+        var2: Destination byte array pointer
+    """
+    if var1 <= 0:
+        return
+
+    end = var0 + var1 * 4
+    while var0 < end:
+        pixel = i32_load(var0)
+        i32_store8(var2 + 2, pixel & 0xFF)         # B
+        i32_store8(var2 + 1, (pixel >> 8) & 0xFF)  # G
+        i32_store8(var2, (pixel >> 16) & 0xFF)     # R
+        var2 += 3
+        var0 += 4
+
+
+# ============================================================================
+# func1000: Pack i32 array to RGB bytes
+# ============================================================================
+
+def func1000(var0: int, var1: int, var2: int) -> None:
+    """
+    $func1000: Pack i32 pixel array to RGB byte array.
+
+    Extracts R, G, B bytes from each i32 and stores as RGB triplet.
+
+    Args:
+        var0: Source i32 array pointer
+        var1: Number of pixels
+        var2: Destination byte array pointer
+    """
+    if var1 <= 0:
+        return
+
+    end = var0 + var1 * 4
+    while var0 < end:
+        pixel = i32_load(var0)
+        i32_store8(var2, pixel & 0xFF)             # R
+        i32_store8(var2 + 1, (pixel >> 8) & 0xFF)  # G
+        i32_store8(var2 + 2, (pixel >> 16) & 0xFF) # B
+        var2 += 3
+        var0 += 4
+
+
+# ============================================================================
+# Batch 50 Aliases
+# ============================================================================
+
+clear_entity_if_type_match = func783
+double_swar_avg = func986
+broadcast_i64 = func1007
+search_non_255_stride4 = func1060
+pack_bgr = func996
+pack_rgb = func1000
