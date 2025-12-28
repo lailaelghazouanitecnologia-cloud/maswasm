@@ -577,3 +577,187 @@ set_selection_param1 = zb
 set_selection_param2 = yb
 get_set_resource = Q
 get_set_percentage = R
+
+
+# ============================================================================
+# lc: Set FPS limit (leaf, 0 callers)
+# ============================================================================
+
+def lc(var0: int) -> None:
+    """
+    $lc: Set game FPS limit.
+
+    Only sets value if global flag at 9147210 is not set.
+    Clamps value to maximum of 30.
+
+    Args:
+        var0: Target FPS (clamped to max 30)
+    """
+    if not i32_load8_u(9147210):
+        # Use min(var0, 30) but WAT uses max via select with ge_u
+        clamped = 30 if var0 >= 30 else var0
+        i32_store(40592, clamped)
+
+
+# ============================================================================
+# fa: Set player game info (leaf, 0 callers)
+# ============================================================================
+
+def fa(var0: int, var1: int, var2: int) -> None:
+    """
+    $fa: Set player game info values.
+
+    Sets player information if player index is valid.
+
+    Args:
+        var0: Player index
+        var1: Value for offset 284608
+        var2: Value for offset 284620 (stored as var2 + 1)
+    """
+    player_count = i32_load(9142892)
+
+    if var0 < player_count:
+        player_base = i32_load(9561692)
+        player_ptr = player_base + var0 * 286704
+        i32_store(player_ptr + 284620, var2 + 1)
+        i32_store(player_ptr + 284608, var1)
+
+
+# ============================================================================
+# ga: Get/set game speed (leaf, 0 callers)
+# ============================================================================
+
+def ga(var0: int, var1: int) -> int:
+    """
+    $ga: Get or set game speed value.
+
+    Behavior depends on global flag at 9147152:
+    - If flag is 0: returns whether speed is non-zero
+    - If flag is set and var0 is 0: returns current speed
+    - If flag is set and var0 is non-zero: sets and returns new speed
+
+    Args:
+        var0: Set flag (0 to get, non-zero to set)
+        var1: New speed value (if setting)
+
+    Returns:
+        Speed value or boolean based on mode
+    """
+    if not i32_load8_u(9147152):
+        # Return whether speed is non-zero
+        return 1 if i32_load(9561752) != 0 else 0
+
+    if not var0:
+        # Just return current speed
+        return i32_load(9561752)
+
+    # Set new speed
+    i32_store(9561752, var1)
+    return var1
+
+
+# ============================================================================
+# ha: Track mouse clicks (leaf, 0 callers)
+# ============================================================================
+
+def ha(var0: int) -> int:
+    """
+    $ha: Track mouse click events for double-click detection.
+
+    Stores click position and increments counter.
+    Returns comparison result for double-click detection.
+
+    Args:
+        var0: Click position/target
+
+    Returns:
+        2 if counter > 7, otherwise comparison result
+    """
+    i32_store(9561756, var0)
+
+    # Increment click counter
+    counter = i32_load(9561764) + 1
+    i32_store(9561764, counter)
+
+    if counter <= 7:
+        prev_click = i32_load(9561760)
+        if prev_click:
+            # Compare with previous click
+            return 1 if var0 == prev_click else 0
+        # Compare with stored value
+        return 1 if i32_load(9561752) == var0 else 0
+    else:
+        return 2
+
+
+# ============================================================================
+# aa: Set camera/view parameters (leaf, 0 callers)
+# ============================================================================
+
+def aa(var0: int, var1: int, var2: int, var3: int, var4: int) -> None:
+    """
+    $aa: Set multiple camera/view parameters.
+
+    Stores 5 values to consecutive memory locations for camera state.
+
+    Args:
+        var0: Value for 9147125 (byte)
+        var1: Value for 9147126 (byte)
+        var2: Value for 9147127 (byte)
+        var3: Value for 9147128 (i32)
+        var4: Value for 9147132 (i32)
+    """
+    i32_store8(9147126, var1)
+    i32_store8(9147125, var0)
+    i32_store8(9147127, var2)
+    i32_store(9147128, var3)
+    i32_store(9147132, var4)
+
+
+# ============================================================================
+# Ie: Set diplomacy matrix value (leaf, 0 callers)
+# ============================================================================
+
+def Ie(var0: int, var1: int, var2: int, var3: int) -> None:
+    """
+    $Ie: Set diplomacy/alliance matrix value.
+
+    Sets values in diplomacy matrices based on mode.
+    Mode 0: Sets bidirectional alliance
+    Mode 3: Sets unidirectional value
+
+    Args:
+        var0: Value to set (boolean)
+        var1: Player 1 index
+        var2: Player 2 index
+        var3: Mode (0 for bidirectional, 3 for unidirectional)
+    """
+    player_count = i32_load(9142892)
+    value = 1 if var0 != 0 else 0
+
+    if var3 == 0:
+        # Bidirectional alliance matrix
+        matrix_base = i32_load(9143004)
+        # Set [var1][var2]
+        offset1 = player_count * var1 + var2
+        i32_store8(matrix_base + offset1, value)
+        # Set [var2][var1]
+        offset2 = player_count * var2 + var1
+        i32_store8(matrix_base + offset2, value)
+    elif var3 == 3:
+        # Unidirectional matrix
+        matrix_base = i32_load(9143012)
+        offset = player_count * var1 + var2
+        i32_store8(matrix_base + offset, value)
+
+
+# ============================================================================
+# Batch 29 Aliases
+# ============================================================================
+
+set_fps_limit = lc
+set_player_info = fa
+get_set_game_speed = ga
+track_click = ha
+set_camera_params = aa
+set_diplomacy = Ie

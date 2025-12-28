@@ -4,5 +4,6 @@ from tzar.exports.accessors import (
     zc, kc, yc, ie, re, mc, gb, ob,
     va, ta, sa, ea,
     oa, ub, ua, ib, ja, ia,
-    wb, vb, zb, yb, Q, R
+    wb, vb, zb, yb, Q, R,
+    lc, fa, ga, ha, aa, Ie
 )
