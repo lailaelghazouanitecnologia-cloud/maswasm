@@ -1,12 +1,12 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T15:40:53.606281",
+  "updated": "2025-12-28T15:55:25.454682",
   "total": 1124,
   "by_status": {
-    "pending": 1124,
+    "pending": 1115,
     "stub": 0,
     "wip": 0,
-    "done": 0,
+    "done": 9,
     "verified": 0
   },
   "by_category": {
@@ -20,7 +20,7 @@
     },
     "unknown": {
       "total": 1086,
-      "done": 0
+      "done": 9
     }
   },
   "functions": {
@@ -235,7 +235,7 @@
       "notes": ""
     },
     "$func35": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -283,7 +283,7 @@
       "notes": ""
     },
     "$func43": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -325,7 +325,7 @@
       "notes": ""
     },
     "$func50": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -457,13 +457,13 @@
       "notes": ""
     },
     "$func72": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
     },
     "$func73": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -475,13 +475,13 @@
       "notes": ""
     },
     "$func75": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
     },
     "$func76": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -499,7 +499,7 @@
       "notes": ""
     },
     "$func79": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -529,7 +529,7 @@
       "notes": ""
     },
     "$func84": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""

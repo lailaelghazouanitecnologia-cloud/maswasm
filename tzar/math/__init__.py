@@ -1,1 +1,1 @@
-"""Math module."""
+"""Math module - trigonometry and utilities."""

@@ -1,1 +1,1 @@
-"""Webp module."""
+"""WebP decoder module."""
