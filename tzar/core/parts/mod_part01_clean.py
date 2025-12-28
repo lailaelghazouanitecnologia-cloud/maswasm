@@ -678,11 +678,159 @@ def entity_render_update(entity_ptr: int, sprite_data: int, arg2: int, is_select
 
 
 # =============================================================================
+# Entity Spawning
+# =============================================================================
+
+# Entity pool state
+ENTITY_COUNT = 9671136       # Current entity count
+ENTITY_CAPACITY = 9671132    # Entity array capacity
+ENTITY_GROWTH = 9671140      # Growth increment
+ENTITY_TICK_CACHE = 9671144  # Last processed tick
+ENTITY_NEXT_IDX = 9671148    # Next entity index to process
+
+# Special entity type addresses
+HERO_TYPE = 38500
+BUILDING_TYPE = 38528
+
+
+def entity_spawn(type_id: int, owner: int, tile_x: int, tile_y: int, arg4: int, arg5: int) -> int:
+    """
+    Spawn a new entity.
+
+    Args:
+        type_id: Entity type ID
+        owner: Owner player ID (2147483647 = no owner)
+        tile_x: X position in tiles
+        tile_y: Y position in tiles
+        arg4: Additional parameter
+        arg5: Additional parameter
+
+    Returns:
+        Entity index, or -1 on failure
+    """
+    # Find available entity slot
+    if not load32(9147132):  # Game flag
+        entity_idx = load32(ENTITY_COUNT)
+    else:
+        # Check tick cache
+        game_tick = load32(GAME_TICK)
+        if game_tick != load32(ENTITY_TICK_CACHE):
+            store32(ENTITY_NEXT_IDX, 3)
+            store32(ENTITY_TICK_CACHE, game_tick)
+
+        # Find free slot starting from index 3
+        entity_idx = 3
+        entity_count = load32(ENTITY_COUNT)
+
+        if u32(3) < u32(entity_count):
+            entities_base = load32(ENTITIES)
+
+            while u32(entity_idx) < u32(entity_count):
+                entity_ptr = entities_base + (entity_idx * ENTITY_STRIDE)
+
+                # Skip buildings that were recently used
+                if load8u(entity_ptr + 125) == 3:  # Is building
+                    last_tick = load32(entity_ptr + 68)
+                    if u32((game_tick - last_tick) * 25) > 70000:
+                        break
+
+                entity_idx += 1
+
+        store32(ENTITY_NEXT_IDX, entity_count)
+        entity_idx = entity_idx  # Use found slot
+
+    # Get entity type info
+    type_ptr = get_entity_type_ptr(type_id)
+
+    # Skip if formation type 3
+    if load32(type_ptr + 264) == 3:
+        return -1
+
+    players_base = load32(PLAYERS)
+    actual_owner = owner if owner != 2147483647 else 0
+
+    # Call placement validation (func56)
+    # if not func56(tile_x, tile_y, type_ptr, actual_owner, 1, entity_idx, 1, arg5, 0):
+    #     return -1
+
+    # Allocate or reuse entity slot
+    entity_count = load32(ENTITY_COUNT)
+
+    if entity_idx == entity_count:
+        # New entity - expand pool if needed
+        new_count = entity_idx + 1
+        store32(ENTITY_COUNT, new_count)
+
+        capacity = load32(ENTITY_CAPACITY)
+        if u32(new_count) >= u32(capacity):
+            growth = load32(ENTITY_GROWTH)
+            new_cap = growth + capacity
+            store32(ENTITY_CAPACITY, new_cap)
+
+            # Reallocate entity array
+            old_ptr = load32(ENTITIES)
+            # new_ptr = func228(old_ptr, new_cap, new_count)  # Realloc
+            # store32(ENTITIES, new_ptr)
+    else:
+        # Reusing existing slot - set up linked list
+        from tzar.memory.mod import malloc
+        ref_ptr = malloc(4)
+        link_ptr = ref_ptr + 4
+
+        entities_base = load32(ENTITIES)
+        entity_ptr = entities_base + (entity_idx * ENTITY_STRIDE)
+
+        old_ref = load32(entity_ptr)
+        if old_ref:
+            store32(entity_ptr + 4, old_ref)
+
+        store32(entity_ptr + 8, link_ptr)
+        store32(entity_ptr + 4, ref_ptr)
+        store32(entity_ptr, ref_ptr)
+        # memory.fill would clear entity here
+
+    # Initialize entity
+    entities_base = load32(ENTITIES)
+    entity_ptr = entities_base + (entity_idx * ENTITY_STRIDE)
+
+    store32(entity_ptr + EntityField.MAX_HP, entity_idx)
+
+    # Set owner based on entity type
+    formation = load32(type_ptr + 264)
+    ai_type = load32(type_ptr + 188)
+
+    if formation != 2 and ai_type == 55:
+        pass  # Special handling for AI type 55
+    elif load32(HERO_TYPE) == type_id:
+        pass  # Hero type
+    elif load32(BUILDING_TYPE) == type_id:
+        pass  # Building type
+
+    store16(entity_ptr + 110, actual_owner)
+
+    # Set neutral owner flag for ownerless entities
+    if owner == 2147483647 and ai_type == 55:
+        store8(entity_ptr + 126, 2)
+
+    # Set position and type
+    store16(entity_ptr + 114, tile_y)
+    store16(entity_ptr + 112, tile_x)
+    store8(entity_ptr + 122, type_id)
+
+    # Set initial HP from type definition
+    base_hp = load32(type_ptr + 168)
+    # Further initialization...
+
+    return entity_idx
+
+
+# =============================================================================
 # Legacy Aliases
 # =============================================================================
 
 func32 = entity_tick
 func33 = bitstream_read
+func34 = entity_spawn
 func36 = bitstream_refill
 func37 = entity_render_update
 func38 = queue_push
