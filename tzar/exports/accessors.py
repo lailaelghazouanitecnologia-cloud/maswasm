@@ -761,3 +761,137 @@ get_set_game_speed = ga
 track_click = ha
 set_camera_params = aa
 set_diplomacy = Ie
+
+
+# ============================================================================
+# se: Get terrain/map value (leaf, 0 callers)
+# ============================================================================
+
+def se() -> int:
+    """
+    $se: Get terrain/map pointer or value.
+
+    Returns:
+        Value at 9140328 (likely map data pointer)
+    """
+    return i32_load(9140328)
+
+
+# ============================================================================
+# kf: Set global7 and global8 (leaf, 0 callers)
+# ============================================================================
+
+def kf(var0: int, var1: int) -> None:
+    """
+    $kf: Set two global values.
+
+    Args:
+        var0: Value for global8
+        var1: Value for global7
+    """
+    from tzar._runtime import global_set
+    global_set('global8', var0)
+    global_set('global7', var1)
+
+
+# ============================================================================
+# lf: Get stack pointer (leaf, 0 callers)
+# ============================================================================
+
+def lf() -> int:
+    """
+    $lf: Get current stack pointer (global0).
+
+    Returns:
+        Current stack pointer value
+    """
+    from tzar._runtime import get_stack_pointer
+    return get_stack_pointer()
+
+
+# ============================================================================
+# mf: Set stack pointer (leaf, 0 callers)
+# ============================================================================
+
+def mf(var0: int) -> None:
+    """
+    $mf: Set stack pointer (global0).
+
+    Args:
+        var0: New stack pointer value
+    """
+    from tzar._runtime import set_stack_pointer
+    set_stack_pointer(var0)
+
+
+# ============================================================================
+# nf: Allocate stack space (leaf, 0 callers)
+# ============================================================================
+
+def nf(var0: int) -> int:
+    """
+    $nf: Allocate aligned stack space.
+
+    Subtracts var0 from stack pointer and aligns to 16-byte boundary.
+
+    Args:
+        var0: Number of bytes to allocate
+
+    Returns:
+        New aligned stack pointer
+    """
+    from tzar._runtime import get_stack_pointer, set_stack_pointer
+    new_sp = (get_stack_pointer() - var0) & ~15  # Align to 16 bytes
+    set_stack_pointer(new_sp)
+    return new_sp
+
+
+# ============================================================================
+# Qa: Check alliance status for entity (leaf, 0 callers)
+# ============================================================================
+
+def Qa(var0: int) -> int:
+    """
+    $Qa: Check if current player is allied with entity's owner.
+
+    Looks up entity owner and checks alliance matrix.
+
+    Args:
+        var0: Entity type or ID to check
+
+    Returns:
+        1 if allied, 0 if not or not found
+    """
+    player_count = i32_load(9142892)
+
+    if player_count < 2:
+        return 1
+
+    player_base = i32_load(9561692)
+
+    for i in range(1, player_count):
+        player_ptr = player_base + i * 286704
+        # Check if entity belongs to this player
+        if var0 == i32_load(player_ptr + 283908):
+            # Get alliance matrix base
+            alliance_matrix = i32_load(9143004)
+            current_player = i32_load(9142872)
+            # Check alliance status
+            offset = player_ptr + 283908
+            owner = i32_load(offset)
+            matrix_offset = alliance_matrix + current_player * player_count + owner
+            return 1 if i32_load8_u(matrix_offset) != 0 else 0
+
+    return 1
+
+
+# ============================================================================
+# Batch 30 Aliases
+# ============================================================================
+
+get_map_value = se
+set_globals_7_8 = kf
+get_stack_ptr = lf
+set_stack_ptr = mf
+alloc_stack = nf
+check_alliance = Qa

@@ -202,6 +202,28 @@ def import_a_g():
 
 
 # ============================================
+# Global Variables
+# ============================================
+
+def global_get(name: str) -> int:
+    """Get WASM global variable value."""
+    return globals.get(name, 0)
+
+def global_set(name: str, value: int):
+    """Set WASM global variable value."""
+    globals[name] = value
+
+# Shorthand accessors for common globals
+def get_stack_pointer() -> int:
+    """Get current stack pointer (global0)."""
+    return globals['global0']
+
+def set_stack_pointer(value: int):
+    """Set stack pointer (global0)."""
+    globals['global0'] = value
+
+
+# ============================================
 # Helpers
 # ============================================
 
