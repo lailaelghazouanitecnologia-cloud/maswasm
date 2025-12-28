@@ -1900,3 +1900,121 @@ get_ptr_9147392 = Fc
 get_const_33104 = Ac
 get_entity_type_196 = eb
 get_mode_flag = Eb
+
+
+# ============================================================================
+# BATCH 39: Conditional flags and pointers
+# ============================================================================
+
+# ============================================================================
+# dc: Set flag conditionally
+# ============================================================================
+
+def dc() -> None:
+    """
+    $dc: Set flag at 9140312 to 1 if certain conditions met.
+
+    Sets flag if both bytes at 9147210 and 9147152 are 0.
+    """
+    if (i32_load8_u(9147210) | i32_load8_u(9147152)) == 0:
+        i32_store8(9140312, 1)
+
+
+# ============================================================================
+# ec: Clear flag conditionally
+# ============================================================================
+
+def ec() -> None:
+    """
+    $ec: Clear flag at 9140312 if certain conditions met.
+
+    Clears flag if both bytes at 9147210 and 9147152 are 0.
+    """
+    if (i32_load8_u(9147210) | i32_load8_u(9147152)) == 0:
+        i32_store8(9140312, 0)
+
+
+# ============================================================================
+# $b: Get player resources pointer conditionally
+# ============================================================================
+
+def dollar_b() -> int:
+    """
+    $$b: Get player resources pointer based on mode.
+
+    If mode flag (9147212) is non-zero: returns player + 283984
+    Otherwise: returns constant 9561072
+
+    Returns:
+        Pointer to resource data
+    """
+    if i32_load8_u(9147212):
+        player_ptr = i32_load(9561692) + i32_load(9142872) * 286704
+        return player_ptr + 283984
+    return 9561072
+
+
+# ============================================================================
+# ad: Set three game fields conditionally
+# ============================================================================
+
+def ad(var0: int, var1: int, var2: int) -> None:
+    """
+    $ad: Set three game state fields if values are non-negative.
+
+    Stores to offsets 108, 112, 116 from pointer at 9568076.
+
+    Args:
+        var0: Value for offset 108 (if >= 0)
+        var1: Value for offset 112 (if >= 0)
+        var2: Value for offset 116 (if >= 0)
+    """
+    base = i32_load(9568076)
+    if var0 >= 0:
+        i32_store(base + 108, var0)
+    if var1 >= 0:
+        i32_store(base + 112, var1)
+    if var2 >= 0:
+        i32_store(base + 116, var2)
+
+
+# ============================================================================
+# $d: Get game state offset 72
+# ============================================================================
+
+def dollar_d() -> int:
+    """
+    $$d: Get game state offset 72.
+
+    Note: The mul/div 2400 is a no-op mathematically.
+
+    Returns:
+        Value at game state offset 72
+    """
+    return i32_load(i32_load(9142424) + 72)
+
+
+# ============================================================================
+# Da: Return constant 41104
+# ============================================================================
+
+def Da() -> int:
+    """
+    $Da: Return constant 41104.
+
+    Returns:
+        41104
+    """
+    return 41104
+
+
+# ============================================================================
+# Batch 39 Aliases
+# ============================================================================
+
+set_flag_conditional = dc
+clear_flag_conditional = ec
+get_resources_ptr = dollar_b
+set_game_fields = ad
+get_game_state_72 = dollar_d
+get_const_41104 = Da
