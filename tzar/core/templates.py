@@ -442,6 +442,136 @@ class StateMachine:
 
 
 # =============================================================================
+# Control Groups (Hotkey Groups)
+# =============================================================================
+
+# Control group pointers (10 groups, 0-9)
+CONTROL_GROUPS = [
+    9215904,  # Group 1
+    9215908,  # Group 2
+    9215912,  # Group 3
+    9215916,  # Group 4
+    9215920,  # Group 5
+    9215924,  # Group 6
+    9215928,  # Group 7
+    9215932,  # Group 8
+    9215936,  # Group 9
+    9215940,  # Group 0
+]
+
+
+def get_control_group(group_id: int) -> int:
+    """Get pointer to control group structure."""
+    if 0 <= group_id < len(CONTROL_GROUPS):
+        return load32(CONTROL_GROUPS[group_id])
+    return 0
+
+
+def control_group_count(group_ptr: int) -> int:
+    """Get number of entities in control group."""
+    if not group_ptr:
+        return 0
+    return load32(group_ptr + 8)
+
+
+def control_group_entities(group_ptr: int) -> int:
+    """Get pointer to entity ID array in control group."""
+    if not group_ptr:
+        return 0
+    return load32(group_ptr)
+
+
+def find_in_control_groups(entity_id: int) -> int:
+    """
+    Find which control group contains an entity.
+    Returns group index (0-9) or -1 if not found.
+    """
+    entities_base = load32(ENTITIES)
+
+    for group_idx, group_addr in enumerate(CONTROL_GROUPS):
+        group_ptr = load32(group_addr)
+        if not group_ptr:
+            continue
+
+        count = load32(group_ptr + 8)
+        if not count:
+            continue
+
+        entities_arr = load32(group_ptr)
+        for i in range(count):
+            eid = load32(entities_arr + (i * 4))
+            entity_ptr = entities_base + (eid * ENTITY_STRIDE)
+            if load32(entity_ptr + 28) == entity_id:  # Check entity.id
+                return group_idx
+
+    return -1
+
+
+def iter_control_group(group_id: int) -> Iterator[int]:
+    """Iterate over entity IDs in a control group."""
+    group_ptr = get_control_group(group_id)
+    if not group_ptr:
+        return
+
+    count = control_group_count(group_ptr)
+    entities_arr = control_group_entities(group_ptr)
+
+    for i in range(count):
+        yield load32(entities_arr + (i * 4))
+
+
+# =============================================================================
+# Camera and Viewport
+# =============================================================================
+
+CAMERA_X = 9684804
+CAMERA_Y = 9684808
+VIEWPORT_X = 9142952
+VIEWPORT_Y = 9142956
+
+
+def get_camera_pos() -> tuple:
+    """Get camera position."""
+    return (load32(CAMERA_X), load32(CAMERA_Y))
+
+
+def get_viewport_offset() -> tuple:
+    """Get viewport offset."""
+    return (load32(VIEWPORT_X), load32(VIEWPORT_Y))
+
+
+def is_on_screen(tile_x: int, tile_y: int, threshold: int = 9000000) -> bool:
+    """Check if tile coordinates are visible on screen."""
+    vp_x, vp_y = get_viewport_offset()
+    screen_x = (tile_x << 5) - vp_x
+    screen_y = (tile_y << 5) - vp_y
+    dist_sq = screen_x * screen_x + screen_y * screen_y
+    return dist_sq <= threshold
+
+
+# =============================================================================
+# Game Flags
+# =============================================================================
+
+FLAG_PAUSED = 9147152
+FLAG_ANIMATIONS = 9147213
+FLAG_SOUND = 9147210
+FLAG_AI_ENABLED = 9147211
+
+
+def is_game_paused() -> bool:
+    return bool(load8u(FLAG_PAUSED))
+
+
+def are_animations_enabled() -> bool:
+    return bool(load8u(FLAG_ANIMATIONS))
+
+
+def is_ai_enabled() -> bool:
+    return bool(load8u(FLAG_AI_ENABLED))
+
+
+# =============================================================================
 # Common Patterns
 # =============================================================================
 
