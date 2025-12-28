@@ -1341,3 +1341,90 @@ get_player_ptr = O
 get_player_count = ba
 get_static_data_ptr = bb
 random = D
+
+
+# ============================================================================
+# BATCH 34: Stubs and simple accessors
+# ============================================================================
+
+# ============================================================================
+# No-op stub functions (exported but do nothing)
+# ============================================================================
+
+def Ga(var0: int, var1: int, var2: int) -> None:
+    """$Ga: No-op stub function."""
+    pass
+
+
+def Se(var0: int) -> None:
+    """$Se: No-op stub function."""
+    pass
+
+
+def Ba() -> None:
+    """$Ba: No-op stub function. Also exported as Fa, Jb, he."""
+    pass
+
+
+# Multiple export aliases for Ba
+Fa = Ba
+Jb = Ba
+he = Ba
+
+
+def Oa(var0: int, var1: int) -> None:
+    """$Oa: No-op stub function. Also exported as Kd, Ld."""
+    pass
+
+
+# Multiple export aliases for Oa
+Kd = Oa
+Ld = Oa
+
+
+# ============================================================================
+# Hc: Get game state offset 48 (leaf, exported as Hc, Pe)
+# ============================================================================
+
+def Hc() -> int:
+    """
+    $Hc: Get value from game state offset 48.
+
+    Returns i32_load(i32_load(9142424) + 48).
+
+    Returns:
+        Value at game state offset 48
+    """
+    return i32_load(i32_load(9142424) + 48)
+
+
+# Alias for Pe export
+Pe = Hc
+
+
+# ============================================================================
+# V: Set player resource value (leaf, 0 callers)
+# ============================================================================
+
+def V(var0: int, var1: int, var2: int) -> None:
+    """
+    $V: Set player resource value.
+
+    Sets resource at index var2 for player var0 to value var1.
+    Resource offset: 283848 + var2 * 4
+
+    Args:
+        var0: Player index
+        var1: Value to set
+        var2: Resource index
+    """
+    player_ptr = i32_load(9561692) + var0 * 286704
+    i32_store(player_ptr + 283848 + var2 * 4, var1)
+
+
+# ============================================================================
+# Batch 34 Aliases
+# ============================================================================
+
+set_player_resource = V
+get_game_state_48 = Hc
