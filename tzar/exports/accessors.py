@@ -430,3 +430,150 @@ set_player_selection = ua
 set_cursor_mode = ib
 set_player_color = ja
 set_player_alliance = ia
+
+
+# ============================================================================
+# wb: Clear selection flag (leaf, 0 callers)
+# ============================================================================
+
+def wb() -> None:
+    """
+    $wb: Clear selection active flag.
+
+    Clears the flag at 9681884 to indicate no active selection.
+    """
+    i32_store8(9681884, 0)
+
+
+# ============================================================================
+# vb: Set selection state (leaf, 0 callers)
+# ============================================================================
+
+def vb(var0: int, var1: int) -> None:
+    """
+    $vb: Set active selection state.
+
+    Sets selection entity ID, active flag, and mode.
+
+    Args:
+        var0: Entity ID for selection
+        var1: Selection mode
+    """
+    i32_store(9681892, var0)
+    i32_store8(9681884, 1)
+    i32_store8(9681885, var1)
+
+
+# ============================================================================
+# zb: Set selection parameter 1 (leaf, 0 callers)
+# ============================================================================
+
+def zb(var0: int) -> None:
+    """
+    $zb: Store selection parameter 1.
+
+    Args:
+        var0: Value to store at 9681896
+    """
+    i32_store(9681896, var0)
+
+
+# ============================================================================
+# yb: Set selection parameter 2 (leaf, 0 callers)
+# ============================================================================
+
+def yb(var0: int) -> None:
+    """
+    $yb: Store selection parameter 2.
+
+    Args:
+        var0: Value to store at 9681900
+    """
+    i32_store(9681900, var0)
+
+
+# ============================================================================
+# Q: Get/set player resource value (leaf, 0 callers)
+# ============================================================================
+
+def Q(var0: int, var1: int, var2: int) -> int:
+    """
+    $Q: Get player resource value, optionally setting it first.
+
+    If var2 is non-zero, sets the resource before returning.
+    If var1 >= 97, updates a derived value.
+
+    Player structure offsets:
+    - 283984 + (var1 * 4): Resource array
+    - 284372: Derived value source
+    - 283868: Derived value destination
+
+    Args:
+        var0: Player index
+        var1: Resource index
+        var2: Value to set (0 to skip setting)
+
+    Returns:
+        Resource value at the specified index
+    """
+    player_base = i32_load(9561692)
+    player_ptr = player_base + var0 * 286704
+
+    if var2:
+        # Set the resource value (var2 - 1)
+        i32_store(player_ptr + 283984 + var1 * 4, var2 - 1)
+
+    if var1 >= 97:
+        # Update derived value
+        derived = i32_load(player_ptr + 284372)
+        i32_store(player_ptr + 283868, derived)
+
+    return i32_load(player_ptr + 283984 + var1 * 4)
+
+
+# ============================================================================
+# R: Get/set player percentage value (leaf, 0 callers)
+# ============================================================================
+
+def R(var0: int, var1: int, var2: int, var3: int) -> int:
+    """
+    $R: Get player percentage value with optional setting.
+
+    Manages two percentage values at offsets 286684 and 286688.
+
+    Args:
+        var0: Player index
+        var1: Value to set (0 to skip setting, uses formula 100 - (var1 - 1))
+        var2: Offset selector (0 for 286684, non-zero for 286688)
+        var3: Auto-reset flag for alternate offset
+
+    Returns:
+        Percentage value at selected offset
+    """
+    player_base = i32_load(9561692)
+    player_ptr = player_base + var0 * 286704
+
+    # Select offset based on var2
+    offset = 286688 if var2 else 286684
+
+    if var1:
+        # Set value: 100 - (var1 - 1)
+        i32_store(player_ptr + offset, 100 - (var1 - 1))
+
+        if var3 and not i32_load(player_ptr + 286688):
+            # Auto-reset alternate offset to 100
+            i32_store(player_ptr + 286688, 100)
+
+    return i32_load(player_ptr + offset)
+
+
+# ============================================================================
+# Batch 28 Aliases
+# ============================================================================
+
+clear_selection = wb
+set_selection = vb
+set_selection_param1 = zb
+set_selection_param2 = yb
+get_set_resource = Q
+get_set_percentage = R
