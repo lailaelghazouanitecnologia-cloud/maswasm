@@ -9,3 +9,6 @@ from tzar.game.accessors4 import Ja, Jc, Jd, Je, Ke, Lb, Le
 from tzar.game.accessors5 import (
     Me, Na, O, Ob, Oa, Kd, Ld, Oe, Pa, Pb, Qb, Qe, Ra, Ta, V, Vd, Wa, X, Xa
 )
+from tzar.game.accessors6 import (
+    P, _a, _d, aa, ab, ad, ba, bb, bc, cf, da, dc, df, eb, ec, ef, fa
+)

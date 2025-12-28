@@ -1,12 +1,12 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T17:03:53.539186",
+  "updated": "2025-12-28T17:06:54.505699",
   "total": 1124,
   "by_status": {
-    "pending": 1047,
+    "pending": 1030,
     "stub": 0,
     "wip": 0,
-    "done": 77,
+    "done": 94,
     "verified": 0
   },
   "by_category": {
@@ -20,7 +20,7 @@
     },
     "unknown": {
       "total": 1086,
-      "done": 76
+      "done": 93
     }
   },
   "functions": {
@@ -3427,7 +3427,7 @@
       "notes": ""
     },
     "$eb": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3487,7 +3487,7 @@
       "notes": ""
     },
     "$da": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3673,7 +3673,7 @@
       "notes": ""
     },
     "$ad": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3751,7 +3751,7 @@
       "notes": ""
     },
     "$ec": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3811,7 +3811,7 @@
       "notes": ""
     },
     "$bb": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3841,7 +3841,7 @@
       "notes": ""
     },
     "$ba": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3973,7 +3973,7 @@
       "notes": ""
     },
     "$dc": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4123,7 +4123,7 @@
       "notes": ""
     },
     "$ab": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4801,7 +4801,7 @@
       "notes": ""
     },
     "$P": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4999,7 +4999,7 @@
       "notes": ""
     },
     "$bc": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5215,7 +5215,7 @@
       "notes": ""
     },
     "$_d": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5245,13 +5245,13 @@
       "notes": ""
     },
     "$aa": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
     },
     "$fa": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5599,7 +5599,7 @@
       "notes": ""
     },
     "$_a": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5629,7 +5629,7 @@
       "notes": ""
     },
     "$df": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5641,7 +5641,7 @@
       "notes": ""
     },
     "$ef": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -5689,7 +5689,7 @@
       "notes": ""
     },
     "$cf": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
