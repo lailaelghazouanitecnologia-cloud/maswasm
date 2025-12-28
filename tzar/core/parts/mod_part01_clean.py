@@ -539,10 +539,151 @@ def entity_destroy(entity_ptr: int):
 
 
 # =============================================================================
+# Bitstream Refill
+# =============================================================================
+
+def bitstream_refill(stream_ptr: int):
+    """
+    Refill bitstream buffer with one byte.
+
+    Args:
+        stream_ptr: Pointer to stream state
+
+    Stream offsets:
+        +0: 8-byte buffer
+        +12: bits available
+        +16: read position
+        +20: end position
+        +28: EOF flag
+    """
+    if not stream_ptr:
+        raise RuntimeError("Null stream")
+
+    pos = load32(stream_ptr + 16)
+    if not pos:
+        raise RuntimeError("Null position")
+
+    end = load32(stream_ptr + 20)
+    if u32(end) > u32(pos):
+        # Read one byte
+        store32(stream_ptr + 16, pos + 1)
+        store32(stream_ptr + 12, load32(stream_ptr + 12) + 8)
+        store64(stream_ptr, load8u(pos) | (load64(stream_ptr) << 8))
+        return
+
+    # At end of buffer
+    if not load32(stream_ptr + 28):
+        # Set EOF, shift buffer
+        store32(stream_ptr + 28, 1)
+        store64(stream_ptr, load64(stream_ptr) << 8)
+        store32(stream_ptr + 12, load32(stream_ptr + 12) + 8)
+        return
+
+    # Already at EOF
+    store32(stream_ptr + 12, 0)
+
+
+# =============================================================================
+# Entity Rendering/Animation
+# =============================================================================
+
+def entity_render_update(entity_ptr: int, sprite_data: int, arg2: int, is_selected: int):
+    """
+    Update entity rendering/animation state.
+
+    Args:
+        entity_ptr: Entity to update
+        sprite_data: Sprite/animation data pointer
+        arg2: Additional parameter
+        is_selected: Whether entity is selected
+    """
+    if not sprite_data:
+        return
+
+    stack_frame = G.global0 - 128
+    G.global0 = stack_frame
+
+    try:
+        target = load32(entity_ptr + 40)
+        if not target:
+            return
+
+        game_tick = load32(GAME_TICK)
+        store32(entity_ptr + 48, sprite_data)
+
+        owner = load16u(entity_ptr + 110)
+        sub_owner = load16u(entity_ptr + 120)
+        type_id = load8u(entity_ptr + 122)
+
+        # Determine color index
+        if load32(entity_ptr + 92):  # Has reference
+            color_idx = 13
+            if load8u(9142906):  # Multiplayer
+                pass  # Keep color_idx = 13
+        else:
+            base_color = sub_owner if sub_owner else owner
+            color_idx = (base_color & 0xFFFF) + 16
+
+            if not load8u(9142916):  # Not network mode
+                player_color = load8u(entity_ptr + 127)
+                type_ptr = get_entity_type_ptr(type_id)
+
+                if player_color or load32(type_ptr + 156):
+                    color_idx = load32(type_ptr + 156) or player_color
+            else:
+                player_color = load8u(entity_ptr + 127)
+                if player_color:
+                    color_idx = player_color
+
+        # Get entity type info
+        type_ptr = get_entity_type_ptr(type_id)
+        formation = load32(type_ptr + 264)
+
+        # Get sprite info
+        sprite_flags = load32(sprite_data + 32)
+        sprite_scale = load32(sprite_data + 24)
+        sprite_id = load32(sprite_data)
+        frame_count = load32(sprite_data + 16)
+        frame_size = frame_count * load32(sprite_data + 20)
+
+        frame_idx = 0
+        if frame_size:
+            # Calculate frame from tick
+            frame_idx = i32(load32(sprite_data + 4) // frame_size)
+
+        # Handle selection state
+        if not is_selected:
+            if is_game_paused():
+                unit_class = load8u(entity_ptr + 125)
+            else:
+                player_id = load32(CURRENT_PLAYER)
+                if player_id:
+                    visibility_ptr = load32(9143012)
+                    owner = load16u(entity_ptr + 110)
+                    player_count = load32(PLAYER_COUNT)
+                    if load8u(visibility_ptr + owner + (player_count * player_id)):
+                        unit_class = load8u(entity_ptr + 125)
+                        if unit_class == 3:
+                            pass  # Building - special handling
+
+            # Calculate animation frame based on type
+            v1 = load32(type_ptr + 216)
+            v2 = load32(type_ptr + 220)
+
+            # Complex frame calculation would go here
+            # Involves formation type and unit state
+
+    finally:
+        G.global0 = stack_frame + 128
+
+
+# =============================================================================
 # Legacy Aliases
 # =============================================================================
 
 func32 = entity_tick
 func33 = bitstream_read
+func36 = bitstream_refill
+func37 = entity_render_update
 func38 = queue_push
 func47 = entity_destroy
