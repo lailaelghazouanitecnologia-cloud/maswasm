@@ -275,7 +275,274 @@ def entity_tick(entity_ptr: int, skip_ai: int, param2: int):
 
 
 # =============================================================================
+# Bit Stream / Compression Functions
+# =============================================================================
+
+def bitstream_read(stream_ptr: int, num_bits: int) -> int:
+    """
+    Read bits from a bit stream (arithmetic/range decoder).
+
+    Args:
+        stream_ptr: Pointer to stream state structure
+        num_bits: Number of bits to read
+
+    Returns:
+        Decoded value
+
+    Stream structure:
+        +0: 8-byte buffer
+        +8: range value
+        +12: code value
+        +16: current read position
+        +20: buffer end
+        +24: buffer limit
+        +28: EOF flag
+    """
+    if num_bits <= 0:
+        return 0
+
+    code = load32(stream_ptr + 12)
+    range_val = load32(stream_ptr + 8)
+    result = 0
+
+    while num_bits > 0:
+        # Refill buffer if code < 0
+        while code < 0:
+            pos = load32(stream_ptr + 16)
+            if not pos:
+                break
+            if u32(load32(stream_ptr + 24)) > u32(pos):
+                # Bulk read with byte swap
+                data = load64(pos)
+                store32(stream_ptr + 16, pos + 7)
+                swapped = (
+                    ((data << 56) & 0xFF00000000000000) |
+                    ((data << 40) & 0x00FF000000000000) |
+                    ((data << 24) & 0x0000FF0000000000) |
+                    ((data << 8) & 0x000000FF00000000) |
+                    ((data >> 8) & 0x00000000FF000000) |
+                    ((data >> 24) & 0x0000000000FF0000) |
+                    ((data >> 40) & 0x000000000000FF00)
+                )
+                store64(stream_ptr, (load64(stream_ptr) << 56) | (swapped >> 8))
+                break
+
+            if u32(load32(stream_ptr + 20)) > u32(pos):
+                store32(stream_ptr + 16, pos + 1)
+                store64(stream_ptr, load8u(pos) | (load64(stream_ptr) << 8))
+                break
+
+            if not load32(stream_ptr + 28):
+                store32(stream_ptr + 28, 1)  # EOF
+                store64(stream_ptr, load64(stream_ptr) << 8)
+            break
+
+        # Range decode one bit
+        shift = code + 8
+        half_range = (range_val >> 1) & 0xFFFFFF
+        buffer = load64(stream_ptr)
+        threshold = i32((buffer >> shift) & 0xFFFFFFFF)
+
+        if u32(half_range) < u32(threshold):
+            store64(stream_ptr, buffer - (i32(half_range + 1) << shift))
+            result = (1 << (num_bits - 1)) | result
+        # else bit is 0
+
+        # Update range
+        range_val = half_range + 1
+        normalize_bits = clz(range_val) ^ 24
+        code = (range_val - half_range) - normalize_bits
+        store32(stream_ptr + 12, code)
+        range_val = (range_val << normalize_bits) - 1
+        store32(stream_ptr + 8, range_val)
+
+        num_bits -= 1
+
+    return result
+
+
+# =============================================================================
+# Entity Queue System
+# =============================================================================
+
+# Queue base addresses
+QUEUE_NORMAL = 9299872   # Normal entity queue
+QUEUE_SPECIAL = 9299888  # Special/high-value queue
+
+QUEUE_THRESHOLD = 1073741823  # 0x3FFFFFFF
+
+
+class QueueOffsets:
+    """Offsets within queue structure."""
+    ARRAY_PTR = 0
+    CAPACITY = 4
+    COUNT = 8
+    GROWTH = 12
+
+
+def queue_push(value: int):
+    """
+    Add value to appropriate entity queue.
+
+    Values >= QUEUE_THRESHOLD go to special queue.
+    """
+    stack_frame = G.global0 - 48
+    G.global0 = stack_frame
+
+    try:
+        # Select queue based on value
+        if u32(value) >= u32(QUEUE_THRESHOLD):
+            adjusted_value = value - QUEUE_THRESHOLD
+            queue = QUEUE_SPECIAL
+        else:
+            adjusted_value = value
+            queue = QUEUE_NORMAL
+
+        # Get queue state
+        count = load32(queue + QueueOffsets.COUNT)
+        capacity = load32(queue + QueueOffsets.CAPACITY)
+        arr = load32(queue + QueueOffsets.ARRAY_PTR)
+
+        # Grow if at capacity
+        if count == capacity:
+            growth = load32(queue + QueueOffsets.GROWTH)
+            new_cap = growth + count
+            store32(queue + QueueOffsets.CAPACITY, new_cap)
+
+            old_arr = arr
+            if u32(new_cap) > u32(QUEUE_THRESHOLD):
+                arr = 0  # Overflow error
+            else:
+                from tzar.memory.mod import malloc
+                arr = malloc(new_cap << 2)
+
+            # TODO: memory.copy old data
+            if count and old_arr:
+                pass
+
+            store32(queue + QueueOffsets.ARRAY_PTR, arr)
+
+        # Push value
+        store32(queue + QueueOffsets.COUNT, count + 1)
+        store32(arr + (count << 2), adjusted_value)
+
+        # Notify system
+        if load8u(9142916):  # Network mode
+            store32(stack_frame + 32, value)
+        else:
+            store32(stack_frame + 24, value)
+            store64(stack_frame + 16, -4602115869219225600)
+            store64(stack_frame + 8, 0)
+            store64(stack_frame, 0)
+        # a_b() external call here
+
+    finally:
+        G.global0 = stack_frame + 48
+
+
+# =============================================================================
+# Entity Destruction
+# =============================================================================
+
+def entity_destroy(entity_ptr: int):
+    """
+    Destroy entity - cleanup and queue for removal.
+
+    Args:
+        entity_ptr: Pointer to entity to destroy
+    """
+    stack_frame = G.global0 - 48
+    G.global0 = stack_frame
+
+    try:
+        # Multiplayer sync check
+        if load8u(9142906):
+            target = load32(entity_ptr + 40)
+            if not target:
+                return
+
+            color_idx = load8u(entity_ptr + 127) or 16
+
+            if load8u(9142916):  # Network mode
+                if u32(color_idx) <= 15:
+                    idx = color_idx << 4
+                    color = (
+                        load32(1744 + idx) |
+                        (load32(1748 + idx) << 8) |
+                        (load32(1752 + idx) << 16) |
+                        (load32(1756 + idx) << 24)
+                    )
+                    store32(stack_frame + 36, target)
+                    store32(stack_frame + 32, color)
+                return
+
+            store32(stack_frame + 20, target)
+            store32(stack_frame + 16, color_idx)
+            return
+
+        # Local/single player destruction
+        if load8u(9142916):
+            target = load32(entity_ptr + 40)
+            if target:
+                unit_class = load8u(entity_ptr + 125)
+                store32(stack_frame + 4, target)
+                store32(stack_frame, unit_class << 8)
+            return
+
+        # Check for child entities to destroy
+        type_id = load8u(entity_ptr + 122)
+        type_ptr = ENTITY_TYPES + (type_id * 404)
+
+        if load32(type_ptr + 264) == 1:  # Formation type
+            if u32(load32(type_ptr + 216)) >= 2:
+                children = load32(entity_ptr + 12)
+                if children:
+                    count = load32(children + 8)
+                    if count:
+                        i = 0
+                        while u32(i) < u32(count):
+                            arr = load32(children)
+                            entry = arr + (i << 2)
+
+                            if load32(entry + 4) == 1:
+                                queue_push(load32(entry))
+
+                                # Remove entry
+                                new_count = load32(children + 8) - 2
+                                store32(children + 8, new_count)
+
+                                # Shift array
+                                if u32(i) < u32(new_count):
+                                    j = i
+                                    while u32(j) < u32(new_count):
+                                        store32(arr + (j << 2),
+                                               load32(arr + ((j + 2) << 2)))
+                                        j += 1
+
+                                i -= 2
+                            i += 2
+
+        # Queue entity reference for cleanup
+        ref = load32(entity_ptr + 92)
+        if ref:
+            queue_push(ref)
+
+    finally:
+        store32(entity_ptr + 92, 0)
+
+        # Additional reference cleanup
+        other_ref = load32(entity_ptr + 80)
+        if other_ref:
+            pass  # Further cleanup needed
+
+        G.global0 = stack_frame + 48
+
+
+# =============================================================================
 # Legacy Aliases
 # =============================================================================
 
 func32 = entity_tick
+func33 = bitstream_read
+func38 = queue_push
+func47 = entity_destroy
