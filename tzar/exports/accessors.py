@@ -2864,3 +2864,165 @@ store_byte_9163794 = func930
 load_before_ptr = func987
 compare_globals = func884
 check_entity_state_3 = func898
+
+
+# ============================================================================
+# BATCH 47: Entity type checks and bit averaging
+# ============================================================================
+
+# ============================================================================
+# func724: Check entity type field 308 is zero
+# ============================================================================
+
+def func724(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func724: Check if entity type field 308 is zero.
+
+    Similar to func496 but checks field 308 instead of 340.
+
+    Args:
+        var0-var4: Various parameters (only var1 is used)
+
+    Returns:
+        1 if entity type field 308 is zero, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    field_308 = i32_load(type_addr + 308)
+    return 1 if field_308 == 0 else 0
+
+
+# ============================================================================
+# func735: Check entity type field 320 is zero
+# ============================================================================
+
+def func735(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func735: Check if entity type field 320 is zero.
+
+    Similar to func496 but checks field 320 instead of 340.
+
+    Args:
+        var0-var4: Various parameters (only var1 is used)
+
+    Returns:
+        1 if entity type field 320 is zero, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    field_320 = i32_load(type_addr + 320)
+    return 1 if field_320 == 0 else 0
+
+
+# ============================================================================
+# func912: Check entity type field 316 is zero
+# ============================================================================
+
+def func912(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func912: Check if entity type field 316 is zero.
+
+    Similar to func496 but checks field 316 instead of 340.
+
+    Args:
+        var0-var4: Various parameters (only var1 is used)
+
+    Returns:
+        1 if entity type field 316 is zero, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    field_316 = i32_load(type_addr + 316)
+    return 1 if field_316 == 0 else 0
+
+
+# ============================================================================
+# func924: Check entity type field 324 is zero
+# ============================================================================
+
+def func924(var0: int, var1: int, var2: int, var3: int, var4: int) -> int:
+    """
+    $func924: Check if entity type field 324 is zero.
+
+    Similar to func496 but checks field 324 instead of 340.
+
+    Args:
+        var0-var4: Various parameters (only var1 is used)
+
+    Returns:
+        1 if entity type field 324 is zero, 0 otherwise
+    """
+    entity_base = i32_load(9671128)
+    entity_idx = i32_load(var1)
+    entity_addr = entity_base + entity_idx * 132
+    entity_type = i32_load8_u(entity_addr + 122)
+    type_addr = 9568096 + entity_type * 404
+    field_324 = i32_load(type_addr + 324)
+    return 1 if field_324 == 0 else 0
+
+
+# ============================================================================
+# func982: SWAR byte averaging (var1+4, var1)
+# ============================================================================
+
+def func982(var0: int, var1: int) -> int:
+    """
+    $func982: SWAR byte averaging of two packed values.
+
+    Uses SIMD Within A Register technique to average packed bytes
+    without overflow: avg = ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+    Args:
+        var0: Ignored
+        var1: Pointer to two consecutive i32 values
+
+    Returns:
+        Averaged packed bytes
+    """
+    a = i32_load(var1 + 4)
+    b = i32_load(var1)
+    return ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+
+# ============================================================================
+# func984: SWAR byte averaging (var0, var1)
+# ============================================================================
+
+def func984(var0: int, var1: int) -> int:
+    """
+    $func984: SWAR byte averaging of two packed values.
+
+    Uses SIMD Within A Register technique to average packed bytes
+    without overflow: avg = ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+    Args:
+        var0: Pointer to first i32 value
+        var1: Pointer to second i32 value
+
+    Returns:
+        Averaged packed bytes
+    """
+    a = i32_load(var1)
+    b = i32_load(var0)
+    return ((a ^ b) >> 1) & 0x7F7F7F7F + (a & b)
+
+
+# ============================================================================
+# Batch 47 Aliases
+# ============================================================================
+
+check_entity_type_field_308 = func724
+check_entity_type_field_320 = func735
+check_entity_type_field_316 = func912
+check_entity_type_field_324 = func924
+swar_avg_consecutive = func982
+swar_avg_pointers = func984
