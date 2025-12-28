@@ -16,3 +16,8 @@ from tzar.util.string_helpers import (
 from tzar.util.collections import (
     func372, func442, func390, func441, func105
 )
+
+from tzar.util.misc import (
+    func395, ac, func384, func378, func392,
+    func437, func439, func430, func452, func433
+)
