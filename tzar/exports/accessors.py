@@ -2464,3 +2464,125 @@ get_global3 = cf
 set_globals_3_6 = df
 atomic_store_global3 = ef
 set_config_fields = _c
+
+
+# ============================================================================
+# BATCH 44: Simple constant/identity functions
+# ============================================================================
+
+# ============================================================================
+# func251: Return zero
+# ============================================================================
+
+def func251(var0: int) -> int:
+    """
+    $func251: Return 0 (ignores parameter).
+
+    A stub function that always returns 0 regardless of input.
+
+    Args:
+        var0: Ignored parameter
+
+    Returns:
+        Always 0
+    """
+    return 0
+
+
+# ============================================================================
+# func395: Identity function
+# ============================================================================
+
+def func395(var0: int) -> int:
+    """
+    $func395: Identity function - returns its input.
+
+    Args:
+        var0: Input value
+
+    Returns:
+        The same value as input
+    """
+    return var0
+
+
+# ============================================================================
+# func536: Return 3749
+# ============================================================================
+
+def func536(var0: int) -> int:
+    """
+    $func536: Return constant 3749 (ignores parameter).
+
+    Args:
+        var0: Ignored parameter
+
+    Returns:
+        Always 3749
+    """
+    return 3749
+
+
+# ============================================================================
+# func537: Return 4188
+# ============================================================================
+
+def func537(var0: int) -> int:
+    """
+    $func537: Return constant 4188 (ignores parameter).
+
+    Args:
+        var0: Ignored parameter
+
+    Returns:
+        Always 4188
+    """
+    return 4188
+
+
+# ============================================================================
+# func538: Return 5158
+# ============================================================================
+
+def func538(var0: int) -> int:
+    """
+    $func538: Return constant 5158 (ignores parameter).
+
+    Args:
+        var0: Ignored parameter
+
+    Returns:
+        Always 5158
+    """
+    return 5158
+
+
+# ============================================================================
+# func945: Return i64 zero
+# ============================================================================
+
+def func945(var0: int, var1: int, var2: int) -> int:
+    """
+    $func945: Return 0 as i64 (ignores all parameters).
+
+    Args:
+        var0: Ignored (i32)
+        var1: Ignored (originally i64)
+        var2: Ignored (i32)
+
+    Returns:
+        Always 0 (i64)
+    """
+    return 0
+
+
+# ============================================================================
+# Batch 44 Aliases
+# ============================================================================
+
+return_zero = func251
+identity = func395
+const_3749 = func536
+const_4188 = func537
+const_5158 = func538
+return_zero_i64 = func945
