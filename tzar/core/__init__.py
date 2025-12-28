@@ -1,1 +1,1 @@
-"""Tzar Core module."""
+"""Tzar core."""

@@ -165,6 +165,9 @@ def u(val: int) -> int:
         return val + 0x100000000
     return val
 
+# Alias for clarity
+u32 = u
+
 
 def u64(val: int) -> int:
     """Interpret as unsigned 64-bit."""
@@ -276,6 +279,9 @@ def indirect_call(idx: int, *args):
     if idx in _func_table:
         return _func_table[idx](*args)
     raise RuntimeError(f'indirect call to unregistered function {idx}')
+
+# Alias
+call_table = indirect_call
 
 
 # =============================================================================

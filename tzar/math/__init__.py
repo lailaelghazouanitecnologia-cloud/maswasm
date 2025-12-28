@@ -1,1 +1,1 @@
-"""Tzar Math module."""
+"""Tzar math."""

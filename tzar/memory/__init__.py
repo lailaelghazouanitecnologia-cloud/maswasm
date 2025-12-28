@@ -1,1 +1,1 @@
-"""Tzar Memory module."""
+"""Tzar memory."""
