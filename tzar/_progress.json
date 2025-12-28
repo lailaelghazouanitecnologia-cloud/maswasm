@@ -1,12 +1,12 @@
 {
   "created": "2025-12-28T15:40:53.606265",
-  "updated": "2025-12-28T16:52:07.144711",
+  "updated": "2025-12-28T16:54:39.291903",
   "total": 1124,
   "by_status": {
-    "pending": 1077,
+    "pending": 1070,
     "stub": 0,
     "wip": 0,
-    "done": 47,
+    "done": 54,
     "verified": 0
   },
   "by_category": {
@@ -20,7 +20,7 @@
     },
     "unknown": {
       "total": 1086,
-      "done": 46
+      "done": 53
     }
   },
   "functions": {
@@ -1699,7 +1699,7 @@
       "notes": ""
     },
     "$Hc": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -2971,7 +2971,7 @@
       "notes": ""
     },
     "$Ib": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3883,7 +3883,7 @@
       "notes": ""
     },
     "$He": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -3985,7 +3985,7 @@
       "notes": ""
     },
     "$I": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4105,7 +4105,7 @@
       "notes": ""
     },
     "$Ia": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4609,7 +4609,7 @@
       "notes": ""
     },
     "$Hb": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
@@ -4639,7 +4639,7 @@
       "notes": ""
     },
     "$H": {
-      "status": "pending",
+      "status": "done",
       "category": "unknown",
       "file": null,
       "notes": ""
