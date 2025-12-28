@@ -1576,3 +1576,118 @@ get_ptr_9561856 = Na
 is_in_bounds = G
 get_player_map_pos = P
 is_selected = X
+
+
+# ============================================================================
+# BATCH 36: More simple exported accessors
+# ============================================================================
+
+# ============================================================================
+# Ta: Return constant 255 (max byte value)
+# ============================================================================
+
+def Ta() -> int:
+    """
+    $Ta: Return constant 255.
+
+    Returns:
+        255 (max unsigned byte value)
+    """
+    return 255
+
+
+# ============================================================================
+# Pb: Get current player index
+# ============================================================================
+
+def Pb() -> int:
+    """
+    $Pb: Get current player index.
+
+    Returns:
+        Current player index from 9142872
+    """
+    return i32_load(9142872)
+
+
+# ============================================================================
+# Wa: Set camera/view parameters
+# ============================================================================
+
+def Wa(var0: int, var1: int, var2: float) -> None:
+    """
+    $Wa: Set camera or view parameters.
+
+    Stores byte at 9143020, int at 9671160, float at 42160.
+
+    Args:
+        var0: Entity ID or target (stored at 9671160)
+        var1: Mode flag (byte stored at 9143020)
+        var2: Zoom or distance value (float stored at 42160)
+    """
+    i32_store8(9143020, var1)
+    i32_store(9671160, var0)
+    f32_store(42160, var2)
+
+
+# ============================================================================
+# ab: Get entity type field 152
+# ============================================================================
+
+def ab() -> int:
+    """
+    $ab: Get entity type field at offset 152.
+
+    Accesses entity type table using current selection.
+
+    Returns:
+        Value at entity_type + 152
+    """
+    type_table_ptr = i32_load(9681476)
+    idx = i32_load(9681468)
+    type_id = i32_load(type_table_ptr + idx * 4)
+    return i32_load(9568096 + type_id * 404 + 152)
+
+
+# ============================================================================
+# Lb: Load value from 9142912
+# ============================================================================
+
+def Lb() -> int:
+    """
+    $Lb: Get value from address 9142912.
+
+    Returns:
+        Value at 9142912
+    """
+    return i32_load(9142912)
+
+
+# ============================================================================
+# Ra: Get player field at offset 283964
+# ============================================================================
+
+def Ra(var0: int) -> int:
+    """
+    $Ra: Get player field at offset 283964.
+
+    Args:
+        var0: Player index
+
+    Returns:
+        Player field value at offset 283964
+    """
+    player_ptr = i32_load(9561692) + var0 * 286704
+    return i32_load(player_ptr + 283964)
+
+
+# ============================================================================
+# Batch 36 Aliases
+# ============================================================================
+
+get_max_byte = Ta
+get_current_player = Pb
+set_camera_params = Wa
+get_entity_type_152 = ab
+get_value_9142912 = Lb
+get_player_field_283964 = Ra
