@@ -1,251 +1,213 @@
 """
-Runtime support for transpiled WAT code.
-
-Provides memory operations, globals, and helper functions
-needed by the generated Python code.
+Tzar Game Engine Runtime - Memory and utility operations.
 """
-
 import struct
-from typing import Optional
+from typing import Tuple
 
-# Memory - shared bytearray
-# Default 880 pages = 880 * 64KB = 56MB
-MEMORY_PAGES = 880
-memory = bytearray(MEMORY_PAGES * 65536)
-
-# Globals
-global0 = 9756528  # Stack pointer
-global1 = 0
-global2 = 0
-global3 = 0
-global4 = 0
-global5 = 0
-global6 = 0
-global7 = 0
-global8 = 0
+# Memory - 56MB shared buffer
+MEMORY_SIZE = 880 * 65536  # 880 pages * 64KB
+_mem = bytearray(MEMORY_SIZE)
 
 
-# Memory load operations
-def i32_load(addr: int) -> int:
-    """Load a 32-bit signed integer from memory."""
-    val = struct.unpack_from('<i', memory, addr)[0]
-    return val
+# =============================================================================
+# Global state
+# =============================================================================
+class G:
+    """Global variables."""
+    global0 = 9756528  # Stack pointer
+    global1 = 0
+    global2 = 0
+    global3 = 0
+    global4 = 0
+    global5 = 0
+    global6 = 0
+    global7 = 0
+    global8 = 0
 
 
-def i32_load_u(addr: int) -> int:
-    """Load a 32-bit unsigned integer from memory."""
-    val = struct.unpack_from('<I', memory, addr)[0]
-    return val
+# =============================================================================
+# Known memory addresses (semantic names)
+# =============================================================================
+class M:
+    """Memory-mapped values with semantic names."""
+
+    @property
+    def game_state(self) -> int:
+        return load32(9142424)
+
+    @property
+    def current_player(self) -> int:
+        return load32(9142872)
+
+    @property
+    def player_count(self) -> int:
+        return load32(9142892)
+
+    @property
+    def heap_base(self) -> int:
+        return load32(9690480)
+
+    @property
+    def heap_top(self) -> int:
+        return load32(9690484)
+
+    @property
+    def alloc_handler(self) -> int:
+        return load32(9690984)
 
 
-def i64_load(addr: int) -> int:
-    """Load a 64-bit signed integer from memory."""
-    return struct.unpack_from('<q', memory, addr)[0]
+M = M()
 
 
-def f32_load(addr: int) -> float:
-    """Load a 32-bit float from memory."""
-    return struct.unpack_from('<f', memory, addr)[0]
+# =============================================================================
+# Memory operations - compact and efficient
+# =============================================================================
+def load32(addr: int) -> int:
+    """Load 32-bit signed integer."""
+    return struct.unpack_from('<i', _mem, addr)[0]
 
 
-def f64_load(addr: int) -> float:
-    """Load a 64-bit float from memory."""
-    return struct.unpack_from('<d', memory, addr)[0]
+def load64(addr: int) -> int:
+    """Load 64-bit signed integer."""
+    return struct.unpack_from('<q', _mem, addr)[0]
 
 
-def i32_load8_s(addr: int) -> int:
-    """Load a signed 8-bit integer and extend to 32-bit."""
-    return struct.unpack_from('<b', memory, addr)[0]
+def load8u(addr: int) -> int:
+    """Load unsigned byte."""
+    return _mem[addr]
 
 
-def i32_load8_u(addr: int) -> int:
-    """Load an unsigned 8-bit integer and extend to 32-bit."""
-    return memory[addr]
+def load8s(addr: int) -> int:
+    """Load signed byte."""
+    return struct.unpack_from('<b', _mem, addr)[0]
 
 
-def i32_load16_s(addr: int) -> int:
-    """Load a signed 16-bit integer and extend to 32-bit."""
-    return struct.unpack_from('<h', memory, addr)[0]
+def load16u(addr: int) -> int:
+    """Load unsigned 16-bit."""
+    return struct.unpack_from('<H', _mem, addr)[0]
 
 
-def i32_load16_u(addr: int) -> int:
-    """Load an unsigned 16-bit integer and extend to 32-bit."""
-    return struct.unpack_from('<H', memory, addr)[0]
+def load16s(addr: int) -> int:
+    """Load signed 16-bit."""
+    return struct.unpack_from('<h', _mem, addr)[0]
 
 
-def i64_load8_s(addr: int) -> int:
-    """Load a signed 8-bit integer and extend to 64-bit."""
-    return struct.unpack_from('<b', memory, addr)[0]
+def load32u(addr: int) -> int:
+    """Load unsigned 32-bit."""
+    return struct.unpack_from('<I', _mem, addr)[0]
 
 
-def i64_load8_u(addr: int) -> int:
-    """Load an unsigned 8-bit integer and extend to 64-bit."""
-    return memory[addr]
+def loadf32(addr: int) -> float:
+    """Load 32-bit float."""
+    return struct.unpack_from('<f', _mem, addr)[0]
 
 
-def i64_load16_s(addr: int) -> int:
-    """Load a signed 16-bit integer and extend to 64-bit."""
-    return struct.unpack_from('<h', memory, addr)[0]
+def loadf64(addr: int) -> float:
+    """Load 64-bit float."""
+    return struct.unpack_from('<d', _mem, addr)[0]
 
 
-def i64_load16_u(addr: int) -> int:
-    """Load an unsigned 16-bit integer and extend to 64-bit."""
-    return struct.unpack_from('<H', memory, addr)[0]
+def store32(addr: int, val: int):
+    """Store 32-bit integer."""
+    struct.pack_into('<i', _mem, addr, val & 0xFFFFFFFF)
 
 
-def i64_load32_s(addr: int) -> int:
-    """Load a signed 32-bit integer and extend to 64-bit."""
-    return struct.unpack_from('<i', memory, addr)[0]
+def store64(addr: int, val: int):
+    """Store 64-bit integer."""
+    struct.pack_into('<q', _mem, addr, val)
 
 
-def i64_load32_u(addr: int) -> int:
-    """Load an unsigned 32-bit integer and extend to 64-bit."""
-    return struct.unpack_from('<I', memory, addr)[0]
+def store8(addr: int, val: int):
+    """Store byte."""
+    _mem[addr] = val & 0xFF
 
 
-# Atomic loads (simplified - no actual atomicity in Python)
-def i32_atomic_load(addr: int) -> int:
-    """Atomic load of 32-bit integer."""
-    return i32_load(addr)
+def store16(addr: int, val: int):
+    """Store 16-bit."""
+    struct.pack_into('<H', _mem, addr, val & 0xFFFF)
 
 
-def i64_atomic_load(addr: int) -> int:
-    """Atomic load of 64-bit integer."""
-    return i64_load(addr)
+def storef32(addr: int, val: float):
+    """Store 32-bit float."""
+    struct.pack_into('<f', _mem, addr, val)
 
 
-# Memory store operations
-def i32_store(addr: int, val: int):
-    """Store a 32-bit integer to memory."""
-    struct.pack_into('<i', memory, addr, val & 0xFFFFFFFF)
+def storef64(addr: int, val: float):
+    """Store 64-bit float."""
+    struct.pack_into('<d', _mem, addr, val)
 
 
-def i64_store(addr: int, val: int):
-    """Store a 64-bit integer to memory."""
-    struct.pack_into('<q', memory, addr, val)
+# Atomic operations (single-threaded Python - just aliases)
+atomic_load = load32
+atomic_load64 = load64
+atomic_store = store32
+atomic_store64 = store64
 
 
-def f32_store(addr: int, val: float):
-    """Store a 32-bit float to memory."""
-    struct.pack_into('<f', memory, addr, val)
-
-
-def f64_store(addr: int, val: float):
-    """Store a 64-bit float to memory."""
-    struct.pack_into('<d', memory, addr, val)
-
-
-def i32_store8(addr: int, val: int):
-    """Store the low 8 bits of a 32-bit integer."""
-    memory[addr] = val & 0xFF
-
-
-def i32_store16(addr: int, val: int):
-    """Store the low 16 bits of a 32-bit integer."""
-    struct.pack_into('<H', memory, addr, val & 0xFFFF)
-
-
-def i64_store8(addr: int, val: int):
-    """Store the low 8 bits of a 64-bit integer."""
-    memory[addr] = val & 0xFF
-
-
-def i64_store16(addr: int, val: int):
-    """Store the low 16 bits of a 64-bit integer."""
-    struct.pack_into('<H', memory, addr, val & 0xFFFF)
-
-
-def i64_store32(addr: int, val: int):
-    """Store the low 32 bits of a 64-bit integer."""
-    struct.pack_into('<I', memory, addr, val & 0xFFFFFFFF)
-
-
-# Atomic stores (simplified)
-def i32_atomic_store(addr: int, val: int):
-    """Atomic store of 32-bit integer."""
-    i32_store(addr, val)
-
-
-def i64_atomic_store(addr: int, val: int):
-    """Atomic store of 64-bit integer."""
-    i64_store(addr, val)
-
-
-# Type conversions
+# =============================================================================
+# Type operations
+# =============================================================================
 def i32(val: int) -> int:
-    """Wrap value to 32-bit signed integer."""
+    """Wrap to 32-bit signed."""
     val = val & 0xFFFFFFFF
-    if val >= 0x80000000:
-        val -= 0x100000000
-    return val
+    return val - 0x100000000 if val >= 0x80000000 else val
 
 
 def i64(val: int) -> int:
-    """Wrap value to 64-bit signed integer."""
+    """Wrap to 64-bit signed."""
     val = val & 0xFFFFFFFFFFFFFFFF
-    if val >= 0x8000000000000000:
-        val -= 0x10000000000000000
+    return val - 0x10000000000000000 if val >= 0x8000000000000000 else val
+
+
+def u(val: int) -> int:
+    """Interpret as unsigned for comparisons."""
+    if val < 0:
+        return val + 0x100000000
     return val
 
 
-def i64_extend_s(val: int) -> int:
-    """Sign-extend 32-bit to 64-bit."""
-    if val & 0x80000000:
-        return val | 0xFFFFFFFF00000000
+def u64(val: int) -> int:
+    """Interpret as unsigned 64-bit."""
+    if val < 0:
+        return val + 0x10000000000000000
     return val
 
 
-def i64_extend_u(val: int) -> int:
-    """Zero-extend 32-bit to 64-bit."""
-    return val & 0xFFFFFFFF
+# =============================================================================
+# Bit operations
+# =============================================================================
+def rotl(val: int, shift: int, bits: int = 32) -> int:
+    """Rotate left."""
+    mask = (1 << bits) - 1
+    val &= mask
+    shift &= (bits - 1)
+    return ((val << shift) | (val >> (bits - shift))) & mask
 
 
-# Bit manipulation
-def rotl32(val: int, shift: int) -> int:
-    """32-bit rotate left."""
-    val = val & 0xFFFFFFFF
-    shift = shift & 31
-    return ((val << shift) | (val >> (32 - shift))) & 0xFFFFFFFF
+def rotr(val: int, shift: int, bits: int = 32) -> int:
+    """Rotate right."""
+    mask = (1 << bits) - 1
+    val &= mask
+    shift &= (bits - 1)
+    return ((val >> shift) | (val << (bits - shift))) & mask
 
 
-def rotr32(val: int, shift: int) -> int:
-    """32-bit rotate right."""
-    val = val & 0xFFFFFFFF
-    shift = shift & 31
-    return ((val >> shift) | (val << (32 - shift))) & 0xFFFFFFFF
-
-
-def rotl64(val: int, shift: int) -> int:
-    """64-bit rotate left."""
-    val = val & 0xFFFFFFFFFFFFFFFF
-    shift = shift & 63
-    return ((val << shift) | (val >> (64 - shift))) & 0xFFFFFFFFFFFFFFFF
-
-
-def rotr64(val: int, shift: int) -> int:
-    """64-bit rotate right."""
-    val = val & 0xFFFFFFFFFFFFFFFF
-    shift = shift & 63
-    return ((val >> shift) | (val << (64 - shift))) & 0xFFFFFFFFFFFFFFFF
-
-
-def clz32(val: int) -> int:
-    """Count leading zeros in 32-bit value."""
+def clz(val: int, bits: int = 32) -> int:
+    """Count leading zeros."""
     if val == 0:
-        return 32
-    val = val & 0xFFFFFFFF
+        return bits
     count = 0
-    while (val & 0x80000000) == 0:
+    mask = 1 << (bits - 1)
+    while (val & mask) == 0:
         count += 1
-        val <<= 1
+        mask >>= 1
     return count
 
 
-def ctz32(val: int) -> int:
-    """Count trailing zeros in 32-bit value."""
+def ctz(val: int, bits: int = 32) -> int:
+    """Count trailing zeros."""
     if val == 0:
-        return 32
-    val = val & 0xFFFFFFFF
+        return bits
     count = 0
     while (val & 1) == 0:
         count += 1
@@ -253,123 +215,90 @@ def ctz32(val: int) -> int:
     return count
 
 
-def popcnt32(val: int) -> int:
-    """Population count (number of 1 bits) in 32-bit value."""
-    return bin(val & 0xFFFFFFFF).count('1')
+def popcnt(val: int) -> int:
+    """Population count."""
+    return bin(val).count('1')
 
 
-def clz64(val: int) -> int:
-    """Count leading zeros in 64-bit value."""
-    if val == 0:
-        return 64
-    val = val & 0xFFFFFFFFFFFFFFFF
-    count = 0
-    while (val & 0x8000000000000000) == 0:
-        count += 1
-        val <<= 1
-    return count
+# =============================================================================
+# Math operations
+# =============================================================================
+from math import sqrt, ceil, floor, trunc, copysign
 
 
-def ctz64(val: int) -> int:
-    """Count trailing zeros in 64-bit value."""
-    if val == 0:
-        return 64
-    val = val & 0xFFFFFFFFFFFFFFFF
-    count = 0
-    while (val & 1) == 0:
-        count += 1
-        val >>= 1
-    return count
+def f32(val: float) -> float:
+    """Truncate to f32 precision."""
+    return struct.unpack('<f', struct.pack('<f', val))[0]
 
 
-def popcnt64(val: int) -> int:
-    """Population count in 64-bit value."""
-    return bin(val & 0xFFFFFFFFFFFFFFFF).count('1')
+# =============================================================================
+# Memory management
+# =============================================================================
+def mem_size() -> int:
+    """Memory size in pages."""
+    return len(_mem) // 65536
 
 
-# Reinterpret casts
-def i32_reinterpret_f32(val: float) -> int:
-    """Reinterpret f32 bits as i32."""
-    return struct.unpack('<i', struct.pack('<f', val))[0]
-
-
-def i64_reinterpret_f64(val: float) -> int:
-    """Reinterpret f64 bits as i64."""
-    return struct.unpack('<q', struct.pack('<d', val))[0]
-
-
-def f32_reinterpret_i32(val: int) -> float:
-    """Reinterpret i32 bits as f32."""
-    return struct.unpack('<f', struct.pack('<i', val & 0xFFFFFFFF))[0]
-
-
-def f64_reinterpret_i64(val: int) -> float:
-    """Reinterpret i64 bits as f64."""
-    return struct.unpack('<d', struct.pack('<q', val))[0]
-
-
-# Memory operations
-def memory_size() -> int:
-    """Return current memory size in pages."""
-    return len(memory) // 65536
-
-
-def memory_grow(pages: int) -> int:
-    """Grow memory by specified pages. Returns old size or -1 on failure."""
-    global memory
-    old_size = len(memory) // 65536
+def mem_grow(pages: int) -> int:
+    """Grow memory."""
+    global _mem
+    old = len(_mem) // 65536
     try:
-        new_size = len(memory) + pages * 65536
-        if new_size > 65536 * 65536:  # Max 4GB
-            return -1
-        memory.extend(bytearray(pages * 65536))
-        return old_size
+        _mem.extend(bytearray(pages * 65536))
+        return old
     except:
         return -1
 
 
-# Memory copy operations
-def memory_copy(dest: int, src: int, length: int):
+def mem_copy(dst: int, src: int, n: int):
     """Copy memory region."""
-    memory[dest:dest+length] = memory[src:src+length]
+    _mem[dst:dst+n] = _mem[src:src+n]
 
 
-def memory_fill(dest: int, val: int, length: int):
-    """Fill memory region with value."""
-    memory[dest:dest+length] = bytes([val & 0xFF]) * length
+def mem_fill(dst: int, val: int, n: int):
+    """Fill memory region."""
+    _mem[dst:dst+n] = bytes([val & 0xFF]) * n
 
 
-# Function table support
-_function_table = {}
+# =============================================================================
+# Indirect call table
+# =============================================================================
+_func_table = {}
 
 
-def register_function(idx: int, func):
-    """Register a function in the table."""
-    _function_table[idx] = func
+def register_func(idx: int, fn):
+    """Register function in table."""
+    _func_table[idx] = fn
 
 
-def call_indirect(idx: int, *args):
-    """Call a function by table index."""
-    if idx in _function_table:
-        return _function_table[idx](*args)
-    raise RuntimeError(f"Function not in table: {idx}")
+def indirect_call(idx: int, *args):
+    """Call function by table index."""
+    if idx in _func_table:
+        return _func_table[idx](*args)
+    raise RuntimeError(f'indirect call to unregistered function {idx}')
 
 
-def ref_func(name: str) -> int:
-    """Get reference to a function (placeholder)."""
-    return hash(name) & 0xFFFFFFFF
+# =============================================================================
+# Debug utilities
+# =============================================================================
+def dump_mem(addr: int, size: int = 64) -> str:
+    """Hex dump of memory region."""
+    lines = []
+    for i in range(0, size, 16):
+        hex_part = ' '.join(f'{_mem[addr+i+j]:02x}' for j in range(min(16, size-i)))
+        lines.append(f'{addr+i:08x}: {hex_part}')
+    return '\n'.join(lines)
 
 
-# Load initial memory from file if available
-def load_memory_from_file(filepath: str):
-    """Load memory contents from a binary file."""
-    global memory
-    with open(filepath, 'rb') as f:
+def load_snapshot(path: str):
+    """Load memory snapshot from file."""
+    global _mem
+    with open(path, 'rb') as f:
         data = f.read()
-    memory[:len(data)] = data
+    _mem[:len(data)] = data
 
 
-def save_memory_to_file(filepath: str):
-    """Save memory contents to a binary file."""
-    with open(filepath, 'wb') as f:
-        f.write(memory)
+def save_snapshot(path: str):
+    """Save memory snapshot to file."""
+    with open(path, 'wb') as f:
+        f.write(_mem)
