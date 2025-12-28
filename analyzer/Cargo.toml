@@ -1,0 +1,45 @@
+[package]
+name = "tzar-wasm-analyzer"
+version = "0.1.0"
+edition = "2021"
+description = "Static analyzer for Tzar RTS WASM game engine"
+
+[dependencies]
+# Parsing
+nom = "7.1"
+wast = "69.0"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# CLI
+clap = { version = "4.4", features = ["derive"] }
+
+# Async
+tokio = { version = "1.35", features = ["full"] }
+
+# Graphs
+petgraph = "0.6"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Progress
+indicatif = "0.17"
+
+# Parallel processing
+rayon = "1.8"
+
+[lib]
+name = "tzar_analyzer"
+path = "src/lib.rs"
+
+[[bin]]
+name = "tzar-analyze"
+path = "src/main.rs"
+
+[profile.release]
+opt-level = 3
+lto = true
